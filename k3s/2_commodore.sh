@@ -23,9 +23,6 @@ LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get 
 
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"
-echo "===> and then the following commands:"
-echo "===> $ ssh-keyscan ${GITLAB_ENDPOINT} >> /app/.ssh/known_hosts"
-echo "===> $ commodore catalog compile $CLUSTER_ID --push"
 kubectl -n lieutenant run commodore-shell \
   --image=docker.io/projectsyn/commodore:v0.2.0 \
   --env=COMMODORE_API_URL="${LIEUTENANT_URL}" \
@@ -37,6 +34,6 @@ kubectl -n lieutenant run commodore-shell \
   --tty --stdin --restart=Never --rm --wait \
   --image-pull-policy=Always \
   --command \
-  -- /usr/local/bin/entrypoint.sh bash
+  -- /usr/local/bin/entrypoint.sh bash -c "ssh-keyscan $GITLAB_ENDPOINT >> /app/.ssh/known_hosts; commodore catalog compile $CLUSTER_ID --push"
 
 echo "===> COMMODORE DONE"

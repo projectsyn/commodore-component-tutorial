@@ -12,6 +12,7 @@ k3d create --name projectsyn
 
 # Wait for K3s to be ready
 wait_for_k3s
+wait_for_traefik
 
 echo "===> Creating namespace"
 kubectl create namespace lieutenant

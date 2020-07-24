@@ -15,7 +15,9 @@ wait_for_k3s () {
     done
     echo "===> K3s running"
     kubectl cluster-info
+}
 
+wait_for_traefik () {
     echo "===> Waiting for traefik service"
     TRAEFIK=$(kubectl get pod -n kube-system | grep traefik | grep 1/1)
     while [ -z "$TRAEFIK" ]
