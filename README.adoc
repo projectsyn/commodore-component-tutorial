@@ -1,0 +1,13 @@
+= Getting Started with Commodore Components
+
+This tutorial provides all the information required to create your first Commodore component.
+
+== Requirements
+
+https://kubernetes.io/docs/tasks/tools/install-minikube/[Minikube] or https://k3d.io/[K3d]
+
+== Steps
+
+. First
+. Second
+. Third
