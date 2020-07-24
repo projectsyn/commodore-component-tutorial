@@ -1,58 +1,22 @@
 #!/usr/bin/env bash
 
 source ../lib/functions.sh
+source ../lib/k3s.sh
 
 check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
 
-echo "===> Waiting for K3d to be up and running"
-KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"
-export KUBECONFIG
-K3S_RUNNING=$(kubectl get nodes | grep k3d)
-while [ -z "$K3S_RUNNING" ]
-do
-    echo "===> K3s not yet ready"
-    sleep 5s
-    KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"
-    export KUBECONFIG
-    K3S_RUNNING=$(kubectl get nodes | grep k3d)
-done
-echo "===> K3s running"
-kubectl cluster-info
+# Wait for K3s to be ready
+wait_for_k3s
 
-echo "===> Waiting for traefik service"
-TRAEFIK=$(kubectl get pod -n kube-system | grep traefik | grep 1/1)
-while [ -z "$TRAEFIK" ]
-do
-    echo "===> Traefik not yet ready"
-    sleep 5s
-    TRAEFIK=$(kubectl get pod -n kube-system | grep traefik | grep Running | grep 1/1)
-done
-echo "===> Traefik ready"
-
-echo "===> Find Lieutenant URL"
-INGRESS_IP=
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  INGRESS_IP=127.0.0.1
-else
-  INGRESS_IP=$(kubectl -n kube-system get svc traefik -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-fi
-echo "===> Ingress: $INGRESS_IP"
+# Set the INGRESS_IP variable
+set_ingress_ip
 
 LIEUTENANT_URL="http://lieutenant.${INGRESS_IP}.nip.io/"
-if [ -z "$LIEUTENANT_URL" ]; then
-    echo "===> ERROR: No LIEUTENANT_URL found"
-    exit 1
-fi
-echo "===> Lieutenant API: $LIEUTENANT_URL"
+check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 
-echo "===> Find Cluster ID"
 CLUSTER_ID=$(kubectl -n lieutenant get cluster | grep c- | awk 'NR==1{print $1}')
-if [ -z "$CLUSTER_ID" ]; then
-    echo "===> ERROR: No CLUSTER_ID found"
-    exit 1
-fi
-echo "===> CLUSTER_ID: $CLUSTER_ID"
+check_variable "CLUSTER_ID" $CLUSTER_ID
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')

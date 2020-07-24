@@ -1,36 +1,17 @@
 #!/usr/bin/env bash
 
 source ../lib/functions.sh
+source ../lib/k3s.sh
 
 check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
 check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
 
-# K3s must be running
+# Start K3s
 k3d create --name projectsyn
 
-echo "===> Waiting for K3d to be up and running"
-K3S_RUNNING=
-while [ -z "$K3S_RUNNING" ]
-do
-    echo "===> K3s not yet ready"
-    sleep 5s
-    KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"
-    export KUBECONFIG
-    K3S_RUNNING=$(kubectl get nodes | grep k3d)
-done
-echo "===> K3s running"
-kubectl cluster-info
-
-echo "===> Waiting for traefik service"
-TRAEFIK=
-while [ -z "$TRAEFIK" ]
-do
-    echo "===> Traefik not yet ready"
-    sleep 5s
-    TRAEFIK=$(kubectl get pod -n kube-system | grep traefik | grep Running | grep 1/1)
-done
-echo "===> Traefik ready"
+# Wait for K3s to be ready
+wait_for_k3s
 
 echo "===> Creating namespace"
 kubectl create namespace lieutenant
@@ -50,14 +31,8 @@ kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-opera
 echo "===> API deployment"
 kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.2.0"
 
-echo "===> Ingress"
-INGRESS_IP=
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  INGRESS_IP=127.0.0.1
-else
-  INGRESS_IP=$(kubectl -n kube-system get svc traefik -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-fi
-echo "===> Ingress: $INGRESS_IP"
+# Set the INGRESS_IP variable
+set_ingress_ip
 
 kubectl -n lieutenant apply -f -<<EOF
 apiVersion: networking.k8s.io/v1beta1
@@ -95,44 +70,7 @@ kubectl -n lieutenant create secret generic vshn-gitlab \
   --from-literal=token="$GITLAB_TOKEN"
 
 echo "===> Prepare Lieutenant API Authentication and Authorization"
-kubectl -n lieutenant apply -f -<<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: lieutenant-api-user
-rules:
-- apiGroups:
-  - syn.tools
-  resources:
-  - clusters
-  - clusters/status
-  - tenants
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: lieutenant-api-user
-roleRef:
-  kind: Role
-  name: lieutenant-api-user
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-- kind: ServiceAccount
-  name: api-access-synkickstart
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: api-access-synkickstart
-EOF
+kubectl -n lieutenant apply -f ../lib/auth.yaml
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')

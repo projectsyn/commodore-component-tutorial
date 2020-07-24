@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source ../lib/functions.sh
+source ../lib/minikube.sh
 
 check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
@@ -8,12 +9,7 @@ check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
 
 # Minikube must be running
 minikube start
-MINIKUBE_RUNNING=$(kubectl get nodes | grep minikube)
-if [ -z "$MINIKUBE_RUNNING" ]; then
-    echo "===> ERROR: Minikube is not running"
-    exit 1
-fi
-echo "===> Minikube running"
+check_minikube
 
 echo "===> Creating namespace"
 kubectl create namespace lieutenant
@@ -62,44 +58,7 @@ kubectl -n lieutenant create secret generic vshn-gitlab \
   --from-literal=token="$GITLAB_TOKEN"
 
 echo "===> Prepare Lieutenant API Authentication and Authorization"
-kubectl -n lieutenant apply -f -<<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: lieutenant-api-user
-rules:
-- apiGroups:
-  - syn.tools
-  resources:
-  - clusters
-  - clusters/status
-  - tenants
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: lieutenant-api-user
-roleRef:
-  kind: Role
-  name: lieutenant-api-user
-  apiGroup: rbac.authorization.k8s.io
-subjects:
-- kind: ServiceAccount
-  name: api-access-synkickstart
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: api-access-synkickstart
-EOF
+kubectl -n lieutenant apply -f ../lib/auth.yaml
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')

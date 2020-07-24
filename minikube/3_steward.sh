@@ -1,35 +1,21 @@
 #!/usr/bin/env bash
 
-# Minikube must be running
-MINIKUBE_RUNNING=$(kubectl get nodes | grep minikube)
-if [ -z "$MINIKUBE_RUNNING" ]; then
-    echo "===> ERROR: Minikube is not running"
-    exit 1
-fi
-echo "===> Minikube running"
+source ../lib/functions.sh
+source ../lib/minikube.sh
+
+check_minikube
 
 echo "===> Find Cluster ID"
 CLUSTER_ID=$(kubectl -n lieutenant get cluster | grep c- | awk 'NR==1{print $1}')
-if [ -z "$CLUSTER_ID" ]; then
-    echo "===> ERROR: No CLUSTER_ID found"
-    exit 1
-fi
-echo "===> CLUSTER_ID: $CLUSTER_ID"
+check_variable "CLUSTER_ID" $CLUSTER_ID
 
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "http://lieutenant." a[1] ".nip.io:" a[2] }')
-if [ -z "$LIEUTENANT_URL" ]; then
-    echo "===> ERROR: No LIEUTENANT_URL found"
-    exit 1
-fi
-echo "===> Lieutenant API: $LIEUTENANT_URL"
+check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 
 echo "===> Find Lieutenant API token"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
-if [ -z "$LIEUTENANT_TOKEN" ]; then
-    echo "===> ERROR: No LIEUTENANT_TOKEN found"
-    exit 1
-fi
+check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Checking validity of bootstrap tokens"
