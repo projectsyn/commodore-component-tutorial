@@ -1,18 +1,9 @@
 #!/usr/bin/env bash
 
-echo "===> Find private SSH key location"
-if [ -z "$COMMODORE_SSH_PRIVATE_KEY" ]; then
-    echo "===> ERROR: No COMMODORE_SSH_PRIVATE_KEY found"
-    exit 1
-fi
-echo "===> COMMODORE_SSH_PRIVATE_KEY: $COMMODORE_SSH_PRIVATE_KEY"
+source ../lib/functions.sh
 
-echo "===> Find GitLab endpoint"
-if [ -z "$GITLAB_ENDPOINT" ]; then
-    echo "===> ERROR: No GITLAB_ENDPOINT found"
-    exit 1
-fi
-echo "===> GITLAB_ENDPOINT: $GITLAB_ENDPOINT"
+check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
+check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
 
 echo "===> Waiting for K3d to be up and running"
 KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"

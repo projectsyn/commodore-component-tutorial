@@ -1,22 +1,10 @@
 #!/usr/bin/env bash
 
-if [ -z "$GITLAB_TOKEN" ]; then
-    echo "===> ERROR: GITLAB_TOKEN variable not set"
-    exit 1
-fi
-echo "===> GITLAB_TOKEN: $GITLAB_TOKEN"
+source ../lib/functions.sh
 
-if [ -z "$GITLAB_ENDPOINT" ]; then
-    echo "===> ERROR: No GITLAB_ENDPOINT found"
-    exit 1
-fi
-echo "===> GITLAB_ENDPOINT: $GITLAB_ENDPOINT"
-
-if [ -z "$GITLAB_USERNAME" ]; then
-    echo "===> ERROR: GITLAB_USERNAME variable not set"
-    exit 1
-fi
-echo "===> GITLAB_USERNAME: $GITLAB_USERNAME"
+check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
+check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
+check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
 
 # K3s must be running
 k3d create --name projectsyn

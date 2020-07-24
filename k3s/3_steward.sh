@@ -91,4 +91,5 @@ kubectl -n syn get app root -o jsonpath="{.status.sync.status}"
 echo "===> Retrieve the admin password for Argo CD"
 kubectl -n syn get secret steward -o json | jq -r .data.token | base64 --decode
 
+echo ""
 echo "===> STEWARD DONE"

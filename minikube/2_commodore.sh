@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+source ../lib/functions.sh
+
+check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
+check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
+
 # Minikube must be running
 MINIKUBE_RUNNING=$(kubectl get nodes | grep minikube)
 if [ -z "$MINIKUBE_RUNNING" ]; then
@@ -23,20 +28,6 @@ if [ -z "$CLUSTER_ID" ]; then
     exit 1
 fi
 echo "===> CLUSTER_ID: $CLUSTER_ID"
-
-echo "===> Find private SSH key location"
-if [ -z "$COMMODORE_SSH_PRIVATE_KEY" ]; then
-    echo "===> ERROR: No COMMODORE_SSH_PRIVATE_KEY found"
-    exit 1
-fi
-echo "===> COMMODORE_SSH_PRIVATE_KEY: $COMMODORE_SSH_PRIVATE_KEY"
-
-echo "===> Find GitLab endpoint"
-if [ -z "$GITLAB_ENDPOINT" ]; then
-    echo "===> ERROR: No GITLAB_ENDPOINT found"
-    exit 1
-fi
-echo "===> GITLAB_ENDPOINT: $GITLAB_ENDPOINT"
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
