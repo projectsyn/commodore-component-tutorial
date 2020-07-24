@@ -40,7 +40,6 @@ done
 echo "===> Traefik ready"
 
 echo "===> Find Lieutenant URL"
-
 INGRESS_IP=
 if [[ "$OSTYPE" == "darwin"* ]]; then
   INGRESS_IP=127.0.0.1
