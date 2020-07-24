@@ -50,18 +50,7 @@ spec:
           servicePort: 80
 EOF
 
-echo "===> Looping until the installation is ok"
-EXPECTED="ok"
-CURL=$(which curl)
-COMMAND="$CURL --silent http://lieutenant.$INGRESS_IP.nip.io/healthz"
-RESULT=$($COMMAND)
-while [ "$RESULT" != "$EXPECTED" ]
-do
-    echo "===> Not yet OK"
-    sleep 5s
-    RESULT=$($COMMAND)
-done
-echo "===> OK"
+wait_for_lieutenant "http://lieutenant.$INGRESS_IP.nip.io/healthz"
 
 echo "===> Prepare Lieutenant Operator access to GitLab"
 kubectl -n lieutenant create secret generic vshn-gitlab \

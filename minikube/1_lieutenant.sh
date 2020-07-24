@@ -35,21 +35,9 @@ kubectl -n lieutenant expose deployment lieutenant-api --type=NodePort --port=80
 
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "lieutenant." a[1] ".nip.io:" a[2]}')
-
 echo "===> Lieutenant API: $LIEUTENANT_URL"
 
-echo "===> Looping until the installation is ok"
-EXPECTED="ok"
-CURL=$(which curl)
-COMMAND="$CURL --silent $LIEUTENANT_URL/healthz"
-RESULT=$($COMMAND)
-while [ "$RESULT" != "$EXPECTED" ]
-do
-    echo "===> Not yet OK"
-    sleep 1s
-    RESULT=$($COMMAND)
-done
-echo "===> OK"
+wait_for_lieutenant "$LIEUTENANT_URL/healthz"
 
 echo "===> Prepare Lieutenant Operator access to GitLab"
 kubectl -n lieutenant create secret generic vshn-gitlab \

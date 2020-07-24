@@ -7,3 +7,18 @@ check_variable () {
     fi
     echo "===> $1: $2"
 }
+
+wait_for_lieutenant() {
+    echo "===> Waiting for Lieutenant API: $1"
+    EXPECTED="ok"
+    CURL=$(which curl)
+    COMMAND="$CURL --silent $1"
+    RESULT=$($COMMAND)
+    while [ "$RESULT" != "$EXPECTED" ]
+    do
+        echo "===> Not yet OK"
+        sleep 5s
+        RESULT=$($COMMAND)
+    done
+    echo "===> OK"
+}
