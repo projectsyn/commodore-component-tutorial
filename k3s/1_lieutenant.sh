@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Environment variables required:
 if [ -z "$GITLAB_TOKEN" ]; then
     echo "===> ERROR: GITLAB_TOKEN variable not set"
     exit 1
@@ -19,14 +18,31 @@ if [ -z "$GITLAB_USERNAME" ]; then
 fi
 echo "===> GITLAB_USERNAME: $GITLAB_USERNAME"
 
-# Minikube must be running
-minikube start
-MINIKUBE_RUNNING=$(kubectl get nodes | grep minikube)
-if [ -z "$MINIKUBE_RUNNING" ]; then
-    echo "===> ERROR: Minikube is not running"
-    exit 1
-fi
-echo "===> Minikube running"
+# K3s must be running
+k3d create --name projectsyn
+
+echo "===> Waiting for K3d to be up and running"
+K3S_RUNNING=
+while [ -z "$K3S_RUNNING" ]
+do
+    echo "===> K3s not yet ready"
+    sleep 5s
+    KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"
+    export KUBECONFIG
+    K3S_RUNNING=$(kubectl get nodes | grep k3d)
+done
+echo "===> K3s running"
+kubectl cluster-info
+
+echo "===> Waiting for traefik service"
+TRAEFIK=
+while [ -z "$TRAEFIK" ]
+do
+    echo "===> Traefik not yet ready"
+    sleep 5s
+    TRAEFIK=$(kubectl get pod -n kube-system | grep traefik | grep Running | grep 1/1)
+done
+echo "===> Traefik ready"
 
 echo "===> Creating namespace"
 kubectl create namespace lieutenant
@@ -46,24 +62,40 @@ kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-opera
 echo "===> API deployment"
 kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.2.0"
 
-echo "===> For Minikube we must delete the default service and re-create it"
-kubectl -n lieutenant delete svc lieutenant-api
-kubectl -n lieutenant expose deployment lieutenant-api --type=NodePort --port=8080
+echo "===> Ingress"
+INGRESS_IP=
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  INGRESS_IP=127.0.0.1
+else
+  INGRESS_IP=$(kubectl -n kube-system get svc traefik -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+fi
+echo "===> Ingress: $INGRESS_IP"
 
-echo "===> Find Lieutenant URL"
-LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "lieutenant." a[1] ".nip.io:" a[2]}')
-
-echo "===> Lieutenant API: $LIEUTENANT_URL"
+kubectl -n lieutenant apply -f -<<EOF
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: lieutenant-api
+spec:
+  rules:
+  - host: lieutenant.$INGRESS_IP.nip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: lieutenant-api
+          servicePort: 80
+EOF
 
 echo "===> Looping until the installation is ok"
 EXPECTED="ok"
 CURL=$(which curl)
-COMMAND="$CURL --silent $LIEUTENANT_URL/healthz"
+COMMAND="$CURL --silent http://lieutenant.$INGRESS_IP.nip.io/healthz"
 RESULT=$($COMMAND)
 while [ "$RESULT" != "$EXPECTED" ]
 do
     echo "===> Not yet OK"
-    sleep 1s
+    sleep 5s
     RESULT=$($COMMAND)
 done
 echo "===> OK"
@@ -117,6 +149,8 @@ EOF
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
+LIEUTENANT_URL="lieutenant.${INGRESS_IP}.nip.io"
+echo "===> Lieutenant URL: $LIEUTENANT_URL"
 
 echo "===> Create a Lieutenant Tenant via the API"
 TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{\"displayName\":\"My first Tenant\",\"gitRepo\":{\"url\":\"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/mytenant.git\"}}" "${LIEUTENANT_URL}/tenants" | jq -r ".id")
