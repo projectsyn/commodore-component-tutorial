@@ -46,7 +46,7 @@ kubectl -n lieutenant create secret generic vshn-gitlab \
   --from-literal=token="$GITLAB_TOKEN"
 
 echo "===> Prepare Lieutenant API Authentication and Authorization"
-kubectl -n lieutenant apply -f ../lib/auth.yaml
+kubectl -n lieutenant apply -f lib/auth.yaml
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
