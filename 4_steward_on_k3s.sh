@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-source ../lib/functions.sh
-source ../lib/k3s.sh
+source lib/functions.sh
+source lib/k3s.sh
 
 check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT

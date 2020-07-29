@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-source ../lib/functions.sh
-source ../lib/minikube.sh
+source lib/functions.sh
+source lib/minikube.sh
 
 check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT

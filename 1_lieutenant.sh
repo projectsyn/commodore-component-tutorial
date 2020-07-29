@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-source ../lib/functions.sh
-source ../lib/minikube.sh
+source lib/functions.sh
+source lib/minikube.sh
 
 check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
