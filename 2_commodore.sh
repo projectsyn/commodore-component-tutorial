@@ -16,7 +16,7 @@ echo "===> Find Cluster ID"
 CLUSTER_ID=$(kubectl -n lieutenant get cluster | grep c- | awk 'NR==1{print $1}')
 check_variable "CLUSTER_ID" $CLUSTER_ID
 
-echo "===> Create Lieutenant Objects: Tenant and Cluster"
+echo "===> Find Lieutenant Token"
 LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
 
 echo "===> Kickstart Commodore"
