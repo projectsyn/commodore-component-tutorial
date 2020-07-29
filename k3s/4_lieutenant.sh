@@ -6,6 +6,7 @@ source ../lib/k3s.sh
 check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
 check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
+check_variable "TENANT_ID" $TENANT_ID
 
 # Start K3s
 k3d create --name projectsyn
@@ -68,8 +69,7 @@ LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 LIEUTENANT_URL="lieutenant.${INGRESS_IP}.nip.io"
 echo "===> Lieutenant URL: $LIEUTENANT_URL"
 
-echo "===> Create a Lieutenant Tenant via the API"
-TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{\"displayName\":\"My first Tenant\",\"gitRepo\":{\"url\":\"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/mytenant.git\"}}" "${LIEUTENANT_URL}/tenants" | jq -r ".id")
+echo "===> Use an existing TENANT_ID"
 echo "Tenant ID: $TENANT_ID"
 
 echo "===> Retrieve the registered Tenants via API and directly on the cluster"
@@ -78,7 +78,7 @@ kubectl -n lieutenant get tenant
 kubectl -n lieutenant get gitrepo
 
 echo "===> Register a Lieutenant Cluster via the API"
-CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"My first Project Syn cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/cluster-gitops1.git\" } }" "http://${LIEUTENANT_URL}/clusters" | jq -r ".id")
+CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"K3s cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/cluster-gitops1.git\" } }" "http://${LIEUTENANT_URL}/clusters" | jq -r ".id")
 echo "Cluster ID: $CLUSTER_ID"
 
 echo "===> Retrieve the registered Clusters via API and directly on the cluster"
