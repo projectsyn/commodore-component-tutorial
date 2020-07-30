@@ -13,6 +13,7 @@ check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
 # Wait for K3s to be ready
 k3d cluster create projectsyn --network host
 wait_for_k3s
+kubectl config use-context k3d-projectsyn
 
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
@@ -24,7 +25,7 @@ echo "===> Retrieve the Steward install URL"
 STEWARD_INSTALL=$(curl --header "$LIEUTENANT_AUTH" --silent "${LIEUTENANT_URL}/clusters/${CLUSTER_ID}" | jq -r ".installURL")
 echo "===> Steward install URL: $STEWARD_INSTALL"
 
-echo "===> Install Steward in the local k3s"
+echo "===> Install Steward in the local k3s cluster"
 kubectl apply -f "$STEWARD_INSTALL"
 
 echo "===> Check that Steward is running and that Argo CD Pods are appearing"

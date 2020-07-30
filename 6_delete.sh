@@ -22,5 +22,5 @@ kubectl -n lieutenant delete cluster "$K3S_CLUSTER_ID"
 kubectl -n lieutenant delete cluster "$MINIKUBE_CLUSTER_ID"
 kubectl -n lieutenant delete tenant "$TENANT_ID"
 minikube delete
-k3d delete --name=projectsyn
+k3d cluster delete projectsyn
 
