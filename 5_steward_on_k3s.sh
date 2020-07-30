@@ -11,7 +11,7 @@ check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
 
 # Wait for K3s to be ready
-k3d create --name projectsyn
+k3d cluster create projectsyn --network host
 wait_for_k3s
 
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
