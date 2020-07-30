@@ -5,7 +5,7 @@ check_variable () {
         echo "===> ERROR: $1 variable not set"
         exit 1
     fi
-    echo "===> $1: $2"
+    echo "===> OK: $1 variable set"
 }
 
 wait_for_lieutenant() {
