@@ -13,7 +13,7 @@ check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
 # Wait for K3s to be ready
 k3d cluster create projectsyn --network host
 wait_for_k3s
-kubectl config use-context k3d-projectsyn
+wait_for_traefik
 
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 

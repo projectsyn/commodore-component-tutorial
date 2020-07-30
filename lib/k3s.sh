@@ -10,6 +10,7 @@ wait_for_k3s () {
         K3S_RUNNING=$(kubectl get nodes | grep k3d)
     done
     echo "===> K3s running"
+    kubectl config use-context k3d-projectsyn
     kubectl cluster-info
 }
 
