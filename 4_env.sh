@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+kubectl config use-context minikube
+
 export LIEUTENANT_URL=http://$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "lieutenant." a[1] ".nip.io:" a[2]}')
 
 export TENANT_ID=$(kubectl -n lieutenant get tenant | grep t- | awk 'NR==1{print $1}')
