@@ -2,15 +2,11 @@
 
 wait_for_k3s () {
     echo "===> Waiting for K3d to be up and running"
-    KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"
-    export KUBECONFIG
     K3S_RUNNING=$(kubectl get nodes | grep k3d)
     while [ -z "$K3S_RUNNING" ]
     do
         echo "===> K3s not yet ready"
         sleep 5s
-        KUBECONFIG="$(k3d get-kubeconfig --name='projectsyn')"
-        export KUBECONFIG
         K3S_RUNNING=$(kubectl get nodes | grep k3d)
     done
     echo "===> K3s running"
