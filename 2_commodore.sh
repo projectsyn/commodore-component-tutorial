@@ -5,6 +5,7 @@ source lib/minikube.sh
 
 check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
+check_variable "GITHUB_USERNAME" $GITHUB_USERNAME
 
 check_minikube
 

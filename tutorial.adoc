@@ -423,6 +423,33 @@ minikube: `minikube service fortune-service --namespace syn-fortune`
 * Remove your clone of `commodore-defaults` on GitHub
 * Remove your GitLab projects: `mytenant` and `cluster-gitops1`
 
+[source,bash]
+----
+$ ./5_delete.sh        
+Switched to context "minikube".
+===> Minikube running
+===> Find Tenant ID
+===> OK: TENANT_ID variable set
+===> Find Minikube Cluster ID
+===> OK: MINIKUBE_CLUSTER_ID variable set
+===> Find K3s Cluster ID
+===> OK: K3S_CLUSTER_ID variable set
+===> Removing everything
+cluster.syn.tools "c-aged-sea-7813" deleted
+cluster.syn.tools "c-snowy-sunset-5873" deleted
+tenant.syn.tools "t-solitary-field-4017" deleted
+🔥  Deleting "minikube" in docker ...
+🔥  Deleting container "minikube" ...
+🔥  Removing /home/akosma/.minikube/machines/minikube ...
+💀  Removed all traces of the "minikube" cluster.
+INFO[0000] Deleting cluster 'projectsyn'                
+INFO[0002] Deleted k3d-projectsyn-server-0              
+INFO[0002] Deleting image volume 'k3d-projectsyn-images' 
+INFO[0002] Removing cluster details from default kubeconfig... 
+INFO[0002] Removing standalone kubeconfig file (if there is one)... 
+INFO[0002] Successfully deleted cluster projectsyn!  
+----
+
 == Conclusion
 
 I hope this tutorial has given you a good idea of what Commodore components are, and how they can help you in your DevOps workflow.
