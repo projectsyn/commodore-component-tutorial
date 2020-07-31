@@ -6,7 +6,7 @@ source lib/minikube.sh
 check_minikube
 
 echo "===> Find Cluster ID"
-CLUSTER_ID=$(kubectl -n lieutenant get cluster | grep c- | awk 'NR==1{print $1}')
+CLUSTER_ID=$(kubectl -n lieutenant get cluster | grep Minikube | awk 'NR==1{print $1}')
 check_variable "CLUSTER_ID" $CLUSTER_ID
 
 echo "===> Find Lieutenant URL"
