@@ -186,7 +186,7 @@ COMMODORE_API_URL=http://lieutenant.172.17.0.3.nip.io:32506
 # Lieutenant API token
 COMMODORE_API_TOKEN=………
 # Base URL for global Git repositories
-COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/akosma
+COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/$GITHUB_USERNAME
 ----
 
 ==== Compiling the Commodore Catalog
@@ -320,7 +320,7 @@ $ cd dependencies/fortune
 $ git add .
 $ git commit -m "Added code to component"
 $ git remote remove origin
-$ git remote add origin git@github.com:akosma/component-fortune.git
+$ git remote add origin git@github.com:$GITHUB_USERNAME/component-fortune.git
 $ git push --set-upstream origin master
 $ cd ../../
 ----
@@ -338,7 +338,7 @@ We need to edit two files for that:
 [source,bash]
 ----
 - name: fortune
-  url: https://github.com/akosma/component-fortune.git
+  url: https://github.com/[YOUR_GITHUB_USERNAME]/component-fortune.git
 ----
 . `git commit -a -m "Added component"`
 . `git push`
@@ -440,7 +440,7 @@ cluster.syn.tools "c-snowy-sunset-5873" deleted
 tenant.syn.tools "t-solitary-field-4017" deleted
 🔥  Deleting "minikube" in docker ...
 🔥  Deleting container "minikube" ...
-🔥  Removing /home/akosma/.minikube/machines/minikube ...
+🔥  Removing /home/username/.minikube/machines/minikube ...
 💀  Removed all traces of the "minikube" cluster.
 INFO[0000] Deleting cluster 'projectsyn'                
 INFO[0002] Deleted k3d-projectsyn-server-0              
