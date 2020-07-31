@@ -3,7 +3,7 @@ local kube = import 'lib/kube.libjsonnet';
 local inv = kap.inventory();
 local params = inv.parameters.fortune;
 
-local namespace = 'syn-tutorial'; // <1>
+local namespace = 'syn-fortune'; // <1>
 local appName = 'fortune-app';
 local portName = 'fortune-port';
 local containerName = 'vshn/fortune-cookie-service:1.0';
@@ -12,7 +12,7 @@ local labelSelector = {
 };
 
 {
-  namespace: kube.Namespace('syn-tutorial') {  // <2>
+  namespace: kube.Namespace('syn-fortune') {  // <2>
     metadata: {
       name: namespace,
       labels: {
