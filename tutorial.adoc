@@ -1,0 +1,72 @@
+= Tutorial: Writing your First Commodore Component
+
+This tutorial will guide you through the required steps to create your first Commodore component.
+
+== Introduction
+
+Commodore components allow you to customize and extend the number and variety of tasks that you can perform with Project Syn. Using Commodore components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
+
+There are many https://github.com/topics/commodore-component[Commodore components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift] clusters.
+
+WARNING: This tutorial has been prepared with version v0.2.0 of Commodore. Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
+
+In this tutorial, we are going to do the following:
+
+. First, we are going to launch two lightweight Kubernetes clusters, one Minikube and one Rancher K3s, and then we're going to federate them under the same tenant.
+. Then, we are going to deploy a workload in both clusters at the same time.
+. Finally, we are going to wrap up, not without first cleaning up all the different pieces of this experiment.
+
+This tutorial should give you a good idea of how all the different pieces of Project Syn work together, and how Commodore components fit in the picture.
+
+== Requirements
+
+WARNING: This tutorial *was built and tested on a Linux system*; it should, however, be easily ported to macOS, since most of the tools used are cross-platform.
+
+To follow this tutorial you will need quite an array of software in your system:
+
+* https://www.docker.com/[Docker] version 19, or https://podman.io/[podman] version 2.0
+* https://kubernetes.io/docs/tasks/tools/install-minikube/[Minikube] version 1.12
+* https://k3d.io/[K3d] version 3.0
+* A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured].
+* A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
+- The following commands must be installed and available in the path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], https://github.com/mikefarah/yq[yq], `ssh-keyscan`, and `base64`
+
+This tutorial project contains a `requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
+
+IMPORTANT: The specified version numbers are the minimum required. Also, please make sure that both your GitLab and GitHub accounts must have SSH keys configured.
+
+As for the required knowledge bits and pieces:
+
+* You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
+* You should have already followed the https://docs.syn.tools/syn/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
+
+== Steps
+
+Are you ready? The let's get started!
+
+=== 1. Preparations
+
+. Make sure you have all required tools by running the `requirements.sh` script.
+. Fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal GitHub account.
+
+=== 2. Install Lieutenant on Minikube
+
+
+
+=== 3. Bootstrap Commodore on Minikube
+
+=== 4. Install Steward on Minikube
+
+=== 5. Install Steward on K3s
+
+=== 6.
+
+== Conclusion
+
+I hope this tutorial has given you a good idea of what Commodore components are, and how they can help you in your DevOps workflow.
+
+Commodore components can be used to deploy monitoring tools, to change the state of lots of clusters at once, to perform backup operations, to modify network policies, and many other tasks that otherwise would have to be performed manually.
+
+Creating Commodore components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures.
+
+If you create a new open source Commodore component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and maybe even contribute back to your effort.
