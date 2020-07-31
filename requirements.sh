@@ -29,6 +29,9 @@ echo "jq: $JQ_PATH"
 YQ_PATH=$(which yq)
 echo "yq: $YQ_PATH"
 
+K9S_PATH=$(which k9s)
+echo "k9s: $K9S_PATH"
+
 SSH_KEYSCAN_PATH=$(which ssh-keyscan)
 echo "ssh-keyscan: $SSH_KEYSCAN_PATH"
 

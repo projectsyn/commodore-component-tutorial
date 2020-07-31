@@ -26,6 +26,7 @@ kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-opera
     DEFAULT_DELETION_POLICY=Delete \
     LIEUTENANT_DELETE_PROTECTION=false
 
+# tag::demo[]
 echo "===> API deployment"
 kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.2.0"
 
@@ -36,6 +37,7 @@ kubectl -n lieutenant expose deployment lieutenant-api --type=NodePort --port=80
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "lieutenant." a[1] ".nip.io:" a[2]}')
 echo "===> Lieutenant API: $LIEUTENANT_URL"
+# end::demo[]
 
 wait_for_lieutenant "$LIEUTENANT_URL/healthz"
 

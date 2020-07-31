@@ -4,7 +4,7 @@ This tutorial will guide you through the required steps to create your first Com
 
 == Introduction
 
-Commodore components allow you to customize and extend the number and variety of tasks that you can perform with Project Syn. Using Commodore components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
+Commodore components allow you to customize and extend the number and variety of tasks that you can perform with https://syn.tools/[Project Syn]. Using Commodore components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
 
 There are many https://github.com/topics/commodore-component[Commodore components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift] clusters.
 
@@ -27,9 +27,9 @@ To follow this tutorial you will need quite an array of software in your system:
 * https://www.docker.com/[Docker] version 19, or https://podman.io/[podman] version 2.0
 * https://kubernetes.io/docs/tasks/tools/install-minikube/[Minikube] version 1.12
 * https://k3d.io/[K3d] version 3.0
-* A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured].
+* A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured]. You can use a private GitLab instance, if you have one nearby.
 * A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
-- The following commands must be installed and available in the path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], https://github.com/mikefarah/yq[yq], `ssh-keyscan`, and `base64`
+- The following commands must be installed and available in the path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], https://github.com/mikefarah/yq[yq], https://k9scli.io/[k9s] `ssh-keyscan`, and `base64`
 
 This tutorial project contains a `requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
 
@@ -46,20 +46,146 @@ Are you ready? The let's get started!
 
 === 1. Preparations
 
-. Make sure you have all required tools by running the `requirements.sh` script.
-. Fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal GitHub account.
+Make sure to follow these three steps *before* starting the tutorial:
 
-=== 2. Install Lieutenant on Minikube
+. Check all required tools by running the `./requirements.sh` script.
+. In GitHub, fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal account.
+. And in GitLab, create a https://gitlab.com/profile/personal_access_tokens[Personal Access Token] with API access.
+
+CAUTION: Remember to save your token somewhere, since it will only appear once!
+
+=== 2. Install Lieutenant Operator and API on Minikube
+
+The https://syn.tools/lieutenant-operator/[Lieutenant Operator] and its https://syn.tools/lieutenant-api/home.html[API] are the major elements of a Project Syn installation. They provide a complete catalog of information about all of your clusters, and allow developers to operate on those clusters through a unique API.
+
+In this tutorial we are going to install Lieutenant in the same Minikube cluster that we will use later on; this is usually not the case, and Lieutenant and its API are usually installed separately. Doing so will, however, simplify our setup greatly.
+
+First you need to set a few environment variables:
+
+[source,bash]
+----
+$ export GITLAB_TOKEN="TOKEN_CREATED_IN_PREVIOUS_STEP"
+$ export GITLAB_ENDPOINT=gitlab.com
+$ export GITLAB_USERNAME=your_gitlab_username
+$ export GITHUB_USERNAME=your_github_username
+----
+
+To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not go through them here. The script is quite self-explanatory, though:
+
+[source,bash]
+----
+# …
+include::1_lieutenant.sh[tag=demo]
+# …
+----
+
+This script will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
+
+Once the script has run, you will find two new private repositories in your GitLab account: one named `cluster-gitops1` and another named `mytenant`. Project Syn tools use these repositories to perform https://www.gitops.tech/["GitOps"] operations on all the clusters.
+
+.GitLab account after installation of Lieutenant
+image::gitlab_01.png[]
+
+=== 3. Install Steward on Minikube
+
+Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[Steward] on our cluster. This tool is in charge of watching the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
+
+We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh` script.
+
+=== 4. Install Steward on K3s
+
+Now it is time to spin our second cluster, this time using K3s, itself managed using K3d. Again, a couple of scripts will make our life easier.
+
+First we need to get some variables from our environment:
+
+[source,bash]
+----
+$ source ./env.sh
+----
+
+And now we can run a script that will not only spin a new k3s cluster, but will also install Steward in it:
+
+[source,bash]
+----
+$ ./5_steward_on_k3s.sh
+----
+
+And now we are ready: we have two working Kubernetes clusters, one Minikube and one k3s, and both are assigned to the same tenant. To verify this, we ask now the Lieutenant API, installed in our Minikube cluster:
+
+[source,bash]
+----
+$ kubectl config use-context minikube
+Switched to context "minikube".
+
+$ kubectl get clusters -n lieutenant
+NAME                  DISPLAY NAME       TENANT                AGE
+c-damp-dew-2385       K3s cluster        t-muddy-sunset-5530   78s
+c-small-cherry-9211   Minikube cluster   t-muddy-sunset-5530   48m
+
+$ kubectl get tenants -n lieutenant
+NAME                  DISPLAY NAME      AGE
+t-muddy-sunset-5530   Tutorial Tenant   49m
+----
+
+Of course, in your case the NAME column will show different, random values. But we can see both clusters and the tenant object, all happily residing inside the realm of our Project Syn installation.
+
+NOTE: For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
+
+=== 5. Creating a Commodore Component
+
+The first step to create a Commodore component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
+
+Let's then compile the catalog of our clusters; we need to clone the official Commodore project from GitHub first, and inside of that new folder with the Commodore source code, we will create a few folders, and a new file called `.env`.
+
+[source,bash]
+----
+$ git clone git@github.com:projectsyn/commodore.git
+$ cd commodore
+$ mkdir -p catalog inventory dependencies compiled
+$ touch .env
+----
+
+We are going to use now the `commodore` tool to generate our component. This tool is written in Python and requires quite a bit of dependencies to install; instead, we are going to use the corresponding Docker image available in Docker Hub. For that, it is strongly recommended that you define the following function in your environment:
+
+[source,bash]
+----
+$ which commodore
+commodore not found
+
+$ source ./commodore.sh
+
+$ which commodore
+commodore () {
+	docker run --env-file=.env --interactive=true --tty --rm --user="$(id -u)" --volume ~/.ssh:/app/.ssh:ro --volume "$PWD"/compiled/:/app/compiled/ --volume "$PWD"/catalog/:/app/catalog --volume "$PWD"/dependencies/:/app/dependencies/ --volume "$PWD"/inventory/:/app/inventory/ --volume ~/.gitconfig:/app/.gitconfig:ro projectsyn/commodore:v0.2.0 "$*"
+}
+----
+
+We also need to define the contents of the `.env` file, used by Docker to set environment variables required by the `commodore` command. We can do this in a snap with this command, and in my machine this is the result:
+
+[source,bash]
+----
+$ source ./env.sh -docker > .env
+
+$ cat .env
+# URL of Lieutenant API
+COMMODORE_API_URL=http://lieutenant.172.17.0.3.nip.io:32506
+# Lieutenant API token
+COMMODORE_API_TOKEN=………
+# Base URL for global Git repositories
+COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/akosma
+----
+
+Now we are ready to compile our catalog. Every time you call the `commodore` tool you will have to enter the password of your SSH key.
+
+[source,bash]
+----
+$ commodore catalog compile --push $MINIKUBE_CLUSTER_ID
+$ commodore catalog compile --push $K3S_CLUSTER_ID
+----
+
+NOTE: We must repeat this operation for each cluster.
 
 
-
-=== 3. Bootstrap Commodore on Minikube
-
-=== 4. Install Steward on Minikube
-
-=== 5. Install Steward on K3s
-
-=== 6.
 
 == Conclusion
 
