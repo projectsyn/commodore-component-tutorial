@@ -373,7 +373,7 @@ Cleaning catalog repository...
 Updating Kapitan secret references...
 Compiling catalog...
 Postprocessing...
-   > compiled/cluster/metrics-server/01_helmchart/metrics-server/templates/00_namespace.yaml doesn't exist, creating...
+   > compiled/cluster/metrics-server/01_helmchart/metrics-server/templates/00_namespace.yaml does not exist, creating...
 Updating catalog repository...
  > Changes:
      Added file manifests/apps/fortune.yaml
@@ -389,7 +389,7 @@ Since ArgoCD, itself managed by Steward, is watching these repositories, it will
 
 TODO: Write the remaining parts
 
-## Seeing ArgoCD
+=== Seeing ArgoCD
 
 Redirect trafic to ArgoCD:
 
@@ -399,15 +399,15 @@ then open http://localhost:8080 username `admin` and get the password as follows
 
 `kubectl -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy`
 
-and also see the fortune-service running:
+=== Test the fortune-service running:
 
-k3d: `kubectl -n syn-tutorial port-forward svc/fortune-service 8081:3000`
+k3d: `kubectl -n syn-fortune port-forward svc/fortune-service 8081:3000`
 
 `curl http://localhost:8081`
 
-minikube: `minikube service fortune-service --namespace syn-tutorial`
+minikube: `minikube service fortune-service --namespace syn-fortune`
 
-`curl $(minikube service fortune-service --namespace syn-tutorial --url)`
+`curl $(minikube service fortune-service --namespace syn-fortune --url)`
 
 == Conclusion
 
