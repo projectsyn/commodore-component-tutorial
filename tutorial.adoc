@@ -399,17 +399,17 @@ TODO: Add this section
 
 Redirect trafic to ArgoCD:
 
-`kubectl -n syn port-forward svc/argocd-server 8080:80`
+`kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80`
 
 then open http://localhost:8080 username `admin` and get the password as follows:
 
-`kubectl -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy`
+`kubectl --context minikube -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy`
 
 === Test the fortune-service running:
 
 TODO: Add this section
 
-k3d: `kubectl -n syn-fortune port-forward svc/fortune-service 8081:3000`
+k3d: `kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000`
 
 `curl http://localhost:8081`
 
