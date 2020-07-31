@@ -20,6 +20,11 @@ This tutorial should give you a good idea of how all the different pieces of Pro
 
 == Requirements
 
+As for the required knowledge bits and pieces:
+
+* You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
+* You should have already followed the https://docs.syn.tools/syn/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
+
 WARNING: This tutorial *was built and tested on a Linux system*; it should, however, be easily ported to macOS, since most of the tools used are cross-platform.
 
 To follow this tutorial you will need quite an array of software in your system:
@@ -29,16 +34,15 @@ To follow this tutorial you will need quite an array of software in your system:
 * https://k3d.io/[K3d] version 3.0
 * A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured]. You can use a private GitLab instance, if you have one nearby.
 * A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
-- The following commands must be installed and available in the path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], https://github.com/mikefarah/yq[yq], https://k9scli.io/[k9s] `ssh-keyscan`, and `base64`
+* The following commands must be installed and available in the path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], https://github.com/mikefarah/yq[yq], https://k9scli.io/[k9s] `ssh-keyscan`, and `base64`
+* As an editor, we recommend using https://code.visualstudio.com/[Visual Studio Code] with the following extensions:
+** https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet]
+** https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension]
+
 
 This tutorial project contains a `requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
 
 IMPORTANT: The specified version numbers are the minimum required. Also, please make sure that both your GitLab and GitHub accounts must have SSH keys configured.
-
-As for the required knowledge bits and pieces:
-
-* You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
-* You should have already followed the https://docs.syn.tools/syn/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
 
 == Steps
 
@@ -133,9 +137,11 @@ NOTE: For more information, check out the https://syn.tools/lieutenant-operator/
 
 === 5. Creating a Commodore Component
 
-The first step to create a Commodore component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
+This section will dive into the actual work of creating Commodore components.
 
-Let's then compile the catalog of our clusters; we need to clone the official Commodore project from GitHub first, and inside of that new folder with the Commodore source code, we will create a few folders, and a new file called `.env`.
+==== Checking out Commodore
+
+We need to clone the official Commodore project from GitHub first, and inside of that clone of the Commodore source code, we will create a few folders, and a new file called `.env`:
 
 [source,bash]
 ----
@@ -145,7 +151,9 @@ $ mkdir -p catalog inventory dependencies compiled
 $ touch .env
 ----
 
-We are going to use now the `commodore` tool to generate our component. This tool is written in Python and requires quite a bit of dependencies to install; instead, we are going to use the corresponding Docker image available in Docker Hub. For that, it is strongly recommended that you define the following function in your environment:
+==== Using the Commodore Docker Image
+
+We are going to use now the `commodore` tool to generate our component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make `commodore` much easier to use:
 
 [source,bash]
 ----
@@ -175,6 +183,10 @@ COMMODORE_API_TOKEN=………
 COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/akosma
 ----
 
+==== Compiling the Commodore Catalog
+
+The first step to create a Commodore component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
+
 Now we are ready to compile our catalog. Every time you call the `commodore` tool you will have to enter the password of your SSH key.
 
 [source,bash]
@@ -185,7 +197,195 @@ $ commodore catalog compile --push $K3S_CLUSTER_ID
 
 NOTE: We must repeat this operation for each cluster.
 
+==== Creating a New Commodore Component
 
+With our catalog ready to use, we can create a new component. In this case, we want to create a component that automatically deploys a very simple application called the https://hub.docker.com/r/vshn/fortune-cookie-service["Fortune Cookie Service"] to our clusters. This application, written in Python, returns a funny "fortune cookie" message in the console.
+
+Let us create the component first:
+
+[source,bash]
+----
+$ commodore component new fortune
+Agent pid 9
+Enter passphrase for /app/.ssh/id_ed25519: 
+Identity added: /app/.ssh/id_ed25519 (adrian.kosmaczewski@vshn.ch)
+Adding component fortune...
+ > Installing component
+Component fortune successfully added 🎉
+----
+
+The new component is located now in the `dependencies/fortune` folder. We can edit it using Visual Studio Code:
+
+[source,bash]
+----
+$ code dependencies/fortune
+----
+
+.Editing the Fortune component
+image::vscode_01.png[]
+
+Commodore components are written using https://jsonnet.org/[Jsonnet] (pronounced "jay-sonnet"), a data templating language for app and tool developers. If you have never written Jsonnet before, do not worry; just know that all valid JSON files are valid Jsonnet files, and that Jsonnet provides useful extensions, such as variables and functions, and various export formats, which make it easy to write very complex JSON applications with it.
+
+In Visual Studio Code, open the `component/main.jsonnet` file, and replace its text with the following:
+
+[source,jsonnet]
+----
+include::assets/code/main.jsonnet[]
+----
+
+<1> This Jsonnet file provides the definition of a complete Kubernetes deployment. However, instead of being specified in YAML, this file specifies it in Jsonnet format. After the `import` statements we define a few variables.
+<2> This object defines a new Kubernetes namespace.
+<3> This object defines a Kubernetes service.
+<4> Finally, this object specifies a rather standard Kubernetes deployment.
+<5> This variable holds the container image that will be deployed to our clusters.
+
+The https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet] extension for Visual Studio Code has a nifty "live preview" feature; the picture below shows how Jsonnet outputs the classic "YAML" format that any Kubernetes cluster might expect.
+
+.Previewing the Jsonnet compilation
+image::vscode_02.png[]
+
+[TIP]
+.Configuring the Jsonnet preview pane
+====
+The Jsonnet extension for Visual Studio Code requires some values in `settings.json` in order to work properly:
+
+[source,json]
+----
+"jsonnet.executablePath": "/home/username/.local/bin/jsonnet",
+"jsonnet.libPaths": [
+    "/home/username/commodore/commodore/",
+    "/home/username/commodore/dependencies/",
+    "/home/username/.cache/pypoetry/virtualenvs/commodore-jtwx3-r8-py3.7/lib/python3.7/site-packages/kapitan"
+]
+----
+
+The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command.
+====
+
+[TIP]
+.Creating Jsonnet files from YAML
+====
+To create your own Jsonnet files, you can just translate them from plain YAML using either the https://github.com/mikefarah/yq[yq] tool, or the https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension] for Visual Studio Code.
+====
+
+Open the `component/app.jsonnet` file and replace its contents with the following:
+
+[source,jsonnet]
+----
+include::assets/code/app.jsonnet[]
+----
+
+<1> This `secrets=false` parameter is required. This is due to a problem that ArgoCD has with the Kapitan plugin at the time of this writing, which prevents it from loading properly at the moment. Since we do not require secrets for this tutorial, we can safely disable it for the moment.
+
+==== Compiling the Component
+
+Now that we have written our component, let's compile it to see if it's generating what we need:
+
+[source,bash]
+----
+$ commodore component compile dependencies/fortune          
+Agent pid 9
+Enter passphrase for /app/.ssh/id_ed25519: 
+Identity added: /app/.ssh/id_ed25519 (adrian.kosmaczewski@vshn.ch)
+Compile component fortune...
+Updating Jsonnet libraries...
+Compiling catalog...
+ > Component compiled to /app/compiled/test
+
+$ ls compiled/test/fortune 
+.  ..  deployment.yaml  namespace.yaml  service.yaml
+
+$ cat compiled/test/fortune/namespace.yaml        
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    name: syn-tutorial
+  name: syn-tutorial
+----
+
+Our component compiles! Let us create a new project in GitHub and push our code:
+
+image::github_new_proj.png[]
+
+[source,bash]
+----
+$ cd dependencies/fortune
+$ git add .
+$ git commit -m "Added code to component"
+$ git remote remove origin
+$ git remote add origin git@github.com:akosma/component-fortune.git
+$ git push --set-upstream origin master
+$ cd ../../
+----
+
+==== Adding the Component to our Clusters
+
+Now that we have a component that compiles, and that we have pushed it to GitHub, we want to deploy it to our clusters.
+
+We need to edit two files for that:
+
+. `cd inventory/classes/global`
+** This folder is a clone of the fork of the `commodore-defaults` project.
+. Edit `commodore.yml` and add this at the end:
++
+[source,bash]
+----
+- name: fortune
+  url: https://github.com/akosma/component-fortune.git
+----
+. `git commit -a -m "Added component"`
+. `git push`
+. `cd ../[$TENANT_ID]`
+** This folder is a clone of the `mytenant` project in your GitLab account.
+. Edit `/common.yml` and add this text:
++
+[source,bash]
+----
+classes:
+- components.fortune
+----
+. `git commit -a -m "Added component"`
+. `git push`
+. `cd ../../../`
+
+NOTE: Since we edited the `common.yml` file, the changes will propagate to all clusters.
+
+==== Final Step
+
+We're ready! Now we just have to recompile the catalog and push the changes.
+
+[source,bash]
+----
+$ commodore catalog compile --push $MINIKUBE_CLUSTER_ID
+Agent pid 9
+Enter passphrase for /app/.ssh/id_ed25519:
+Identity added: /app/.ssh/id_ed25519 (adrian.kosmaczewski@vshn.ch)
+Cleaning working tree
+Updating global config...
+Updating customer config...
+Discovering components...
+Fetching components...
+Updating Kapitan target...
+Updating cluster catalog...
+Updating Jsonnet libraries...
+Cleaning catalog repository...
+Updating Kapitan secret references...
+Compiling catalog...
+Postprocessing...
+   > compiled/cluster/metrics-server/01_helmchart/metrics-server/templates/00_namespace.yaml doesn't exist, creating...
+Updating catalog repository...
+ > Changes:
+     Added file manifests/apps/fortune.yaml
+     Added file manifests/fortune/deployment.yaml
+     Added file manifests/fortune/namespace.yaml
+     Added file manifests/fortune/service.yaml
+ > Commiting changes...
+ > Pushing catalog to remote...
+Catalog compiled! 🎉
+----
+
+Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
 
 == Conclusion
 
