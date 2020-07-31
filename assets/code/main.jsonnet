@@ -12,7 +12,7 @@ local labelSelector = {
 };
 
 {
-  namespace: kube.Namespace('syn-fortune') {  // <2>
+  namespace: kube.Namespace(namespace) {  // <2>
     metadata: {
       name: namespace,
       labels: {

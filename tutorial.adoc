@@ -90,13 +90,19 @@ Once the script has run, you will find two new private repositories in your GitL
 .GitLab account after installation of Lieutenant
 image::gitlab_01.png[]
 
-=== 3. Install Steward on Minikube
+=== 3. Bootstrapping Commodore on Minikube
+
+TODO: Add this section
+
+`./2_commodore.sh`
+
+=== 4. Install Steward on Minikube
 
 Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[Steward] on our cluster. This tool is in charge of watching the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
 
 We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh` script.
 
-=== 4. Install Steward on K3s
+=== 5. Install Steward on K3s
 
 Now it is time to spin our second cluster, this time using K3s, itself managed using K3d. Again, a couple of scripts will make our life easier.
 
@@ -111,7 +117,7 @@ And now we can run a script that will not only spin a new k3s cluster, but will 
 
 [source,bash]
 ----
-$ ./5_steward_on_k3s.sh
+$ ./4_steward_on_k3s.sh
 ----
 
 And now we are ready: we have two working Kubernetes clusters, one Minikube and one k3s, and both are assigned to the same tenant. To verify this, we ask now the Lieutenant API, installed in our Minikube cluster:
@@ -135,7 +141,7 @@ Of course, in your case the NAME column will show different, random values. But 
 
 NOTE: For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
 
-=== 5. Creating a Commodore Component
+=== 6. Creating a Commodore Component
 
 This section will dive into the actual work of creating Commodore components.
 
@@ -387,9 +393,9 @@ Catalog compiled! 🎉
 
 Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
 
-TODO: Write the remaining parts
-
 === Seeing ArgoCD
+
+TODO: Add this section
 
 Redirect trafic to ArgoCD:
 
@@ -401,6 +407,8 @@ then open http://localhost:8080 username `admin` and get the password as follows
 
 === Test the fortune-service running:
 
+TODO: Add this section
+
 k3d: `kubectl -n syn-fortune port-forward svc/fortune-service 8081:3000`
 
 `curl http://localhost:8081`
@@ -408,6 +416,12 @@ k3d: `kubectl -n syn-fortune port-forward svc/fortune-service 8081:3000`
 minikube: `minikube service fortune-service --namespace syn-fortune`
 
 `curl $(minikube service fortune-service --namespace syn-fortune --url)`
+
+=== Cleanup
+
+* Run the `./5_delete.sh` script to deregister and stop all local clusters.
+* Remove your clone of `commodore-defaults` on GitHub
+* Remove your GitLab projects: `mytenant` and `cluster-gitops1`
 
 == Conclusion
 
