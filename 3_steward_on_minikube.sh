@@ -46,7 +46,7 @@ echo "===> Check that Steward is running and that Argo CD Pods are appearing"
 kubectl -n syn get pod
 
 echo "===> Check that Argo CD was able to sync the changes"
-kubectl -n syn get app root -o jsonpath="{.status.sync.status}"
+wait_for_argocd
 
 echo "===> Retrieve the admin password for Argo CD"
 kubectl -n syn get secret steward -o json | jq -r .data.token | base64 --decode

@@ -27,11 +27,11 @@ case "${OPTION}" in
         echo "COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/$GITHUB_USERNAME"
         ;;
     *)
-        echo "Lieutenant URL: $LIEUTENANT_URL"
-        echo "Lieutenant Token: $LIEUTENANT_TOKEN"
-        echo "Tenant ID: $TENANT_ID"
-        echo "Minikube Cluster ID: $MINIKUBE_CLUSTER_ID"
-        echo "K3s Cluster ID: $K3S_CLUSTER_ID"
+        echo "LIEUTENANT_URL: $LIEUTENANT_URL"
+        echo "LIEUTENANT_TOKEN: $LIEUTENANT_TOKEN"
+        echo "TENANT_ID: $TENANT_ID"
+        echo "MINIKUBE_CLUSTER_ID: $MINIKUBE_CLUSTER_ID"
+        echo "K3S_CLUSTER_ID: $K3S_CLUSTER_ID"
         ;;
 esac
 

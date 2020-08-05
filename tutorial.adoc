@@ -58,6 +58,9 @@ Make sure to follow these three steps *before* starting the tutorial:
 
 CAUTION: Remember to save your token somewhere, since it will only appear once!
 
+.Creating a GitLab token
+image::gitlab_token.png[]
+
 === 2. Install Lieutenant Operator and API on Minikube
 
 The https://syn.tools/lieutenant-operator/[Lieutenant Operator] and its https://syn.tools/lieutenant-api/home.html[API] are the major elements of a Project Syn installation. They provide a complete catalog of information about all of your clusters, and allow developers to operate on those clusters through a unique API.
@@ -92,9 +95,16 @@ image::gitlab_01.png[]
 
 === 3. Bootstrapping Commodore on Minikube
 
-TODO: Add this section
+The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore.sh` script.
 
-`./2_commodore.sh`
+The `./2_commodore.sh` script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` should contain the path to your personal SSH public key.
+
+[source,bash]
+----
+$ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
+----
+
+IMPORTANT: Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
 
 === 4. Install Steward on Minikube
 
@@ -124,15 +134,12 @@ And now we are ready: we have two working Kubernetes clusters, one Minikube and 
 
 [source,bash]
 ----
-$ kubectl config use-context minikube
-Switched to context "minikube".
-
-$ kubectl get clusters -n lieutenant
+$ kubectl --context minikube get clusters -n lieutenant
 NAME                  DISPLAY NAME       TENANT                AGE
 c-damp-dew-2385       K3s cluster        t-muddy-sunset-5530   78s
 c-small-cherry-9211   Minikube cluster   t-muddy-sunset-5530   48m
 
-$ kubectl get tenants -n lieutenant
+$ kubectl --context minikube get tenants -n lieutenant
 NAME                  DISPLAY NAME      AGE
 t-muddy-sunset-5530   Tutorial Tenant   49m
 ----
@@ -395,29 +402,39 @@ Since ArgoCD, itself managed by Steward, is watching these repositories, it will
 
 === Seeing ArgoCD
 
-TODO: Add this section
+You can access the ArgoCD installation in your cluster by following these steps:
 
-Redirect trafic to ArgoCD:
-
-`kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80`
-
-then open http://localhost:8080 username `admin` and get the password as follows:
+First, retrieve the ArgoCD admin password with this command:
 
 `kubectl --context minikube -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy`
 
-=== Test the fortune-service running:
+TIP: In Linux, you can `alias pbcopy="xclip -selection clipboard"``
 
-TODO: Add this section
+Second, redirect trafic to ArgoCD:
 
-k3d: `kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000`
+`kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80`
 
-`curl http://localhost:8081`
+And then open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
 
-minikube: `minikube service fortune-service --namespace syn-fortune`
 
-`curl $(minikube service fortune-service --namespace syn-fortune --url)`
+TODO: image of ArgoCD
+
+=== Execute the fortune-service
+
+Of course you can test the `fortune-service` running in your clusters using the following commands:
+
+For k3d:
+
+. `kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000`
+. And then `curl http://localhost:8081` in a different terminal.
+
+For Minikube:
+
+. `curl $(minikube service fortune-service --namespace syn-fortune --url)`
 
 === Cleanup
+
+We are done! You can now remove the clusters in your computer, and also remove the projects you've created in GitHub and GitLab:
 
 * Run the `./5_delete.sh` script to deregister and stop all local clusters.
 * Remove your clone of `commodore-defaults` on GitHub
