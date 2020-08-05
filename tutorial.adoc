@@ -173,7 +173,7 @@ We are going to use now the `commodore` tool to generate our component. This too
 $ which commodore
 commodore not found
 
-$ source ./commodore.sh
+$ source ../commodore.sh
 
 $ which commodore
 commodore () {
@@ -185,7 +185,7 @@ We also need to define the contents of the `.env` file, used by Docker to set en
 
 [source,bash]
 ----
-$ source ./env.sh -docker > .env
+$ source ../env.sh -docker > .env
 
 $ cat .env
 # URL of Lieutenant API
@@ -220,8 +220,8 @@ Let us create the component first:
 ----
 $ commodore component new fortune
 Agent pid 9
-Enter passphrase for /app/.ssh/id_ed25519: 
-Identity added: /app/.ssh/id_ed25519 (adrian.kosmaczewski@vshn.ch)
+Enter passphrase for /app/.ssh/id_rsa:
+Identity added: /app/.ssh/id_rsa (user@domain.com)
 Adding component fortune...
  > Installing component
 Component fortune successfully added 🎉
@@ -298,8 +298,8 @@ Now that we have written our component, let's compile it to see if it's generati
 ----
 $ commodore component compile dependencies/fortune          
 Agent pid 9
-Enter passphrase for /app/.ssh/id_ed25519: 
-Identity added: /app/.ssh/id_ed25519 (adrian.kosmaczewski@vshn.ch)
+Enter passphrase for /app/.ssh/id_rsa: 
+Identity added: /app/.ssh/id_rsa (user@domain.com)
 Compile component fortune...
 Updating Jsonnet libraries...
 Compiling catalog...
@@ -372,8 +372,8 @@ We're ready! Now we just have to recompile the catalog and push the changes.
 ----
 $ commodore catalog compile --push $MINIKUBE_CLUSTER_ID
 Agent pid 9
-Enter passphrase for /app/.ssh/id_ed25519:
-Identity added: /app/.ssh/id_ed25519 (adrian.kosmaczewski@vshn.ch)
+Enter passphrase for /app/.ssh/id_rsa:
+Identity added: /app/.ssh/id_rsa (user@domain.com)
 Cleaning working tree
 Updating global config...
 Updating customer config...
@@ -408,7 +408,7 @@ First, retrieve the ArgoCD admin password with this command:
 
 `kubectl --context minikube -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy`
 
-TIP: In Linux, you can `alias pbcopy="xclip -selection clipboard"``
+TIP: The `pbcopy` command is usually found in macOS. In Linux, you can `alias pbcopy="xclip -selection clipboard"`.
 
 Second, redirect trafic to ArgoCD:
 
