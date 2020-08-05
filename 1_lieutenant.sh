@@ -8,7 +8,7 @@ check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
 check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
 
 # Minikube must be running
-minikube start
+minikube start --memory 4096 --disk-size 60g --cpus 4
 check_minikube
 
 echo "===> Creating namespace"

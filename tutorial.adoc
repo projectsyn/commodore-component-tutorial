@@ -400,9 +400,9 @@ Catalog compiled! 🎉
 
 Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
 
-=== Seeing ArgoCD
+=== Accessing the ArgoCD Console
 
-You can access the ArgoCD installation in your cluster by following these steps:
+You can access the ArgoCD console in both clusters through these steps:
 
 First, retrieve the ArgoCD admin password with this command:
 
@@ -414,10 +414,10 @@ Second, redirect trafic to ArgoCD:
 
 `kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80`
 
-And then open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
+And third, open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
 
-
-TODO: image of ArgoCD
+.ArgoCD console
+image::argocd.png[]
 
 === Execute the fortune-service
 
