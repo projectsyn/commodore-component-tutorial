@@ -23,20 +23,6 @@ wait_for_lieutenant() {
     echo "===> OK"
 }
 
-wait_for_argocd () {
-    echo "===> Waiting for ArgoCD to be synced"
-    EXPECTED="\"Synced\""
-    COMMAND="kubectl --context $1 -n syn get app root -o jsonpath={.status.sync.status}"
-    RESULT=$($COMMAND)
-    while [ "$RESULT" != "$EXPECTED" ]
-    do
-        echo "===> Not yet OK"
-        sleep 10s
-        RESULT=$($COMMAND)
-    done
-    echo "===> ArgoCD OK"
-}
-
 wait_for_token () {
     echo "===> Waiting for valid bootstrap token"
     EXPECTED="true"

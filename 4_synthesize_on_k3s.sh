@@ -57,11 +57,5 @@ kubectl --context k3d-projectsyn apply -f "$STEWARD_INSTALL"
 echo "===> Check that Steward is running and that Argo CD Pods are appearing"
 kubectl --context k3d-projectsyn -n syn get pod
 
-echo "===> Check that Argo CD was able to sync the changes"
-wait_for_argocd k3d-projectsyn
-
-echo "===> Retrieve the admin password for Argo CD"
-kubectl --context k3d-projectsyn -n syn get secret steward -o json | jq -r .data.token | base64 --decode
-
 echo ""
 echo "===> STEWARD DONE"
