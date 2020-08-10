@@ -18,9 +18,9 @@ K3S_CLUSTER_ID=$(kubectl --context minikube -n lieutenant get cluster | grep c- 
 check_variable "K3S_CLUSTER_ID" $K3S_CLUSTER_ID
 
 echo "===> Removing everything"
-kubectl -n lieutenant delete cluster "$K3S_CLUSTER_ID"
-kubectl -n lieutenant delete cluster "$MINIKUBE_CLUSTER_ID"
-kubectl -n lieutenant delete tenant "$TENANT_ID"
+kubectl --context minikube -n lieutenant delete cluster "$K3S_CLUSTER_ID"
+kubectl --context minikube -n lieutenant delete cluster "$MINIKUBE_CLUSTER_ID"
+kubectl --context minikube -n lieutenant delete tenant "$TENANT_ID"
 minikube delete
 k3d cluster delete projectsyn
 

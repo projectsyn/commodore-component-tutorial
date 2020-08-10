@@ -32,7 +32,7 @@ echo "===> Check that Steward is running and that Argo CD Pods are appearing"
 kubectl --context minikube -n syn get pod
 
 echo "===> Check that Argo CD was able to sync the changes"
-wait_for_argocd
+wait_for_argocd minikube
 
 echo "===> Retrieve the admin password for Argo CD"
 kubectl --context minikube -n syn get secret steward -o json | jq -r .data.token | base64 --decode
