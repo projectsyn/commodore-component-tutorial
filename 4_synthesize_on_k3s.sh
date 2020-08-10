@@ -11,8 +11,13 @@ check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
 check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
 
-# Wait for K3s to be ready
-k3d cluster create projectsyn --network host
+# Launch K3s
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  k3d cluster create projectsyn
+else
+  k3d cluster create projectsyn --network host
+fi
+
 wait_for_k3s
 wait_for_traefik
 
