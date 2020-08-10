@@ -26,7 +26,7 @@ wait_for_lieutenant() {
 wait_for_argocd () {
     echo "===> Waiting for ArgoCD to be synced"
     EXPECTED="\"Synced\""
-    COMMAND='kubectl --context $1 -n syn get app root -o jsonpath="{.status.sync.status}"'
+    COMMAND="kubectl --context $1 -n syn get app root -o jsonpath={.status.sync.status}"
     RESULT=$($COMMAND)
     while [ "$RESULT" != "$EXPECTED" ]
     do
