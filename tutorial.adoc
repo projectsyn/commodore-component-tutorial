@@ -88,7 +88,7 @@ include::1_lieutenant.sh[tag=demo]
 
 This script will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
 
-Once the script has run, you will find two new private repositories in your GitLab account: one named `cluster-gitops1` and another named `mytenant`. Project Syn tools use these repositories to perform https://www.gitops.tech/["GitOps"] operations on all the clusters.
+Once the script has run, you will find two new private repositories in your GitLab account: one named `tutorial-cluster-minikube` and another named `tutorial-tenant`. Project Syn tools use these repositories to perform https://www.gitops.tech/["GitOps"] operations on all the clusters.
 
 .GitLab account after installation of Lieutenant
 image::gitlab_01.png[]
@@ -350,7 +350,7 @@ We need to edit two files for that:
 . `git commit -a -m "Added component"`
 . `git push`
 . `cd ../[$TENANT_ID]`
-** This folder is a clone of the `mytenant` project in your GitLab account.
+** This folder is a clone of the `tutorial-tenant` project in your GitLab account.
 . Edit `/common.yml` and add this text:
 +
 [source,bash]
@@ -438,7 +438,7 @@ We are done! You can now remove the clusters in your computer, and also remove t
 
 * Run the `./5_delete.sh` script to deregister and stop all local clusters.
 * Remove your clone of `commodore-defaults` on GitHub
-* Remove your GitLab projects: `mytenant` and `cluster-gitops1`
+* Remove your GitLab projects: `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s`
 
 [source,bash]
 ----

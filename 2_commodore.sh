@@ -9,6 +9,15 @@ check_variable "GITHUB_USERNAME" $GITHUB_USERNAME
 
 check_minikube
 
+echo "===> Find commodore-defaults repository fork on GitHub"
+GITHUB_COMMODORE_URL=https://github.com/$GITHUB_USERNAME/commodore-defaults
+GITHUB_COMMODORE_DEFAULTS=$(curl $GITHUB_COMMODORE_URL --head --silent | grep "HTTP/1.1 200 OK")
+if [ -z "$GITHUB_COMMODORE_DEFAULTS" ]; then
+  echo "===> ERROR: You must fork the https://github.com/projectsyn/commodore-defaults before running this script"
+  exit 1
+fi
+echo "===> OK: commodore defaults forked: $GITHUB_COMMODORE_DEFAULTS"
+
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "http://lieutenant." a[1] ".nip.io:" a[2]} "/"')
 check_variable "LIEUTENANT_URL" $LIEUTENANT_URL

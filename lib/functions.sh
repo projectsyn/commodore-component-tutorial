@@ -36,3 +36,17 @@ wait_for_argocd () {
     done
     echo "===> ArgoCD OK"
 }
+
+wait_for_token () {
+    echo "===> Waiting for valid bootstrap token"
+    EXPECTED="true"
+    COMMAND="kubectl --context minikube -n lieutenant get cluster $1 -o jsonpath={.status.bootstrapToken.tokenValid}"
+    RESULT=$($COMMAND)
+    while [ "$RESULT" != "$EXPECTED" ]
+    do
+        echo "===> Not yet OK"
+        sleep 10s
+        RESULT=$($COMMAND)
+    done
+    echo "===> Bootstrap token OK"
+}
