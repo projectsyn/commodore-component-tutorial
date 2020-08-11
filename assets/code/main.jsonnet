@@ -3,7 +3,7 @@ local kube = import 'lib/kube.libjsonnet';
 local inv = kap.inventory();
 local params = inv.parameters.fortune;
 
-local namespace = 'syn-fortune'; // <1>
+local namespace = 'syn-fortune';
 local appName = 'fortune-app';
 local portName = 'fortune-port';
 local containerName = 'vshn/fortune-cookie-service:1.0';
@@ -12,7 +12,7 @@ local labelSelector = {
 };
 
 {
-  namespace: kube.Namespace(namespace) {  // <2>
+  namespace: kube.Namespace(namespace) {
     metadata: {
       name: namespace,
       labels: {
@@ -21,7 +21,7 @@ local labelSelector = {
     },
   },
 
-  service: kube.Service('fortune-service') {  // <3>
+  service: kube.Service('fortune-service') {
     metadata: {
       name: 'fortune-service',
       labels: labelSelector,
@@ -39,7 +39,7 @@ local labelSelector = {
     },
   },
 
-  deployment: kube.Deployment('fortune-deployment') {  // <4>
+  deployment: kube.Deployment('fortune-deployment') {
     metadata: {
       name: 'fortune-deployment',
       labels: labelSelector,
@@ -50,7 +50,7 @@ local labelSelector = {
         spec: {
           containers: [
             {
-              image: containerName, // <5>
+              image: containerName,
               name: 'fortune-container',
               ports: [
                 {

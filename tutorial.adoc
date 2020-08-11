@@ -1,21 +1,19 @@
 :author: VSHN AG
 :revdate: {docdate}
 :revnumber: 1.0
-:email:  handbook@vshn.ch
+:email:  projectsyn@vshn.ch
 :copyright: CC-BY-SA 3.0
 :doctitle: Tutorial: Writing your First Commodore Component
 :producer: VSHN AG
 :creator: VSHN AG
 :description: A guide to create your first Commodore Component
-:keywords: VSHN, VSHNeer, work, systems, DevOps, Project Syn
+:keywords: VSHN, DevOps, Project Syn, Kubernetes
 :lang: en
 :imagesdir: {docdir}/assets/images
 
 = Tutorial: Writing your First Commodore Component
 
 This tutorial will guide you through the required steps to create your first Commodore component.
-
-== Introduction
 
 Commodore components allow you to customize and extend the number and variety of tasks that you can perform with https://syn.tools/[Project Syn]. Using Commodore components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
 
@@ -58,11 +56,7 @@ This tutorial project contains a `requirements.sh` script which outputs all of y
 
 IMPORTANT: The specified version numbers are the minimum required. Also, please make sure that both your GitLab and GitHub accounts must have SSH keys configured.
 
-== Steps
-
-Are you ready? Then let's get started!
-
-=== Preparations
+== Preparations
 
 Make sure to follow these three steps *before* starting the tutorial:
 
@@ -95,9 +89,9 @@ To install Lieutenant Operator and API on Minikube, we are going to execute the 
 
 [source,bash]
 ----
-# …
+# ...
 include::1_lieutenant_on_minikube.sh[tag=demo]
-# …
+# ...
 ----
 
 This script will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
@@ -162,11 +156,11 @@ Of course, in your case the NAME column will show different, random values. But 
 
 NOTE: For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
 
-=== Creating a Commodore Component
+== Creating a Commodore Component
 
 This section will dive into the actual work of creating Commodore components.
 
-==== Using the Commodore Docker Image
+=== Using the Commodore Docker Image
 
 We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make using `commodore` a much simpler task:
 
@@ -183,7 +177,7 @@ commodore () {
 }
 ----
 
-==== Checking out the Commodore Project
+=== Checking out the Commodore Project
 
 In order to create a new component, we need to clone the official Commodore project from GitHub first. Inside of that clone of the Commodore source code we will create a few folders:
 
@@ -209,7 +203,7 @@ COMMODORE_API_TOKEN=………
 COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/$GITHUB_USERNAME
 ----
 
-==== Compiling the Commodore Catalog
+=== Compiling the Commodore Catalog
 
 The first step to create a Commodore component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
 
@@ -223,7 +217,7 @@ $ commodore catalog compile --push $K3S_CLUSTER_ID
 
 NOTE: We must repeat this operation for each cluster.
 
-==== Creating a New Commodore Component
+=== Creating a New Commodore Component
 
 With our catalog ready to use, we can create a new component. In this case, we want to create a component that automatically deploys a very simple application called the https://hub.docker.com/r/vshn/fortune-cookie-service["Fortune Cookie Service"] to our clusters. This application, written in Python, returns a funny "fortune cookie" message in the console.
 
@@ -259,20 +253,16 @@ In Visual Studio Code, open the `component/main.jsonnet` file, and replace its t
 include::assets/code/main.jsonnet[]
 ----
 
-<1> This Jsonnet file provides the definition of a complete Kubernetes deployment. However, instead of being specified in YAML, this file specifies it in Jsonnet format. After the `import` statements we define a few variables.
-<2> This object defines a new Kubernetes namespace.
-<3> This object defines a Kubernetes service.
-<4> Finally, this object specifies a rather standard Kubernetes deployment.
-<5> This variable holds the container image that will be deployed to our clusters.
+This Jsonnet file provides the definition of a complete Kubernetes deployment. However, instead of being specified in YAML, this file specifies it in Jsonnet format. After the `import` statements we define a few variables. The entries that follow define various Kubernetes objects: a deployment, a service, and a namespace to hold everything together.
 
 The https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet] extension for Visual Studio Code has a nifty "live preview" feature; the picture below shows how Jsonnet outputs the classic "YAML" format that any Kubernetes cluster might expect.
 
 .Previewing the Jsonnet compilation
 image::vscode_02.png[]
 
-==== Configuring the Jsonnet preview pane
+==== Configuring the Jsonnet Preview Pane in Visual Studio Code
 
-The Jsonnet extension for Visual Studio Code requires some values in `settings.json` in order to work properly:
+The Jsonnet extension for Visual Studio Code requires some values in your `settings.json` in order for the preview pane to work properly:
 
 [source,json]
 ----
@@ -289,7 +279,7 @@ The value of the third entry of the `jsonnet.libPaths` property can be found usi
 [TIP]
 .Creating Jsonnet files from YAML
 ====
-To create your own Jsonnet files, you can just translate them from plain YAML using either the https://github.com/mikefarah/yq[yq] tool, or the https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension] for Visual Studio Code.
+To create your own Jsonnet files, you can just translate them from plain YAML using either the https://github.com/mikefarah/yq[yq] tool, or the https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension] for Visual Studio Code. This is exactly how we created the Jsonnet examples for this tutorial!
 ====
 
 Open the `component/app.jsonnet` file and replace its contents with the following:
@@ -299,9 +289,9 @@ Open the `component/app.jsonnet` file and replace its contents with the followin
 include::assets/code/app.jsonnet[]
 ----
 
-<1> This `secrets=false` parameter is required. This is due to a problem that ArgoCD has with the Kapitan plugin at the time of this writing, which prevents it from loading properly at the moment. Since we do not require secrets for this tutorial, we can safely disable it for the moment.
+The `secrets=false` parameter is required. This is due to an incompatibility of ArgoCD with the Kapitan plugin at the time of this writing, which prevents it from loading properly. Since we do not require secrets for this tutorial, we can safely disable this.
 
-==== Compiling the Component
+=== Compiling the Component
 
 Now that we have written our component, let's compile it to see if it's generating what we need:
 
@@ -343,39 +333,58 @@ $ git push --set-upstream origin master
 $ cd ../../
 ----
 
-==== Adding the Component to our Clusters
+=== Deploying the Component to our Clusters
 
 Now that we have a component that compiles, and that we have pushed it to GitHub, we want to deploy it to our clusters.
 
 We need to edit two files for that:
 
-. `cd inventory/classes/global`
-** This folder is a clone of the fork of the `commodore-defaults` project.
-. Edit `commodore.yml` and add this at the end:
-+
+[source,bash]
+----
+$ cd inventory/classes/global
+----
+
+The `global` folder is a clone of the fork of the `commodore-defaults` project.
+
+Edit `commodore.yml` and add this at the end:
+
 [source,bash]
 ----
 - name: fortune
   url: https://github.com/[YOUR_GITHUB_USERNAME]/component-fortune.git
 ----
-. `git commit -a -m "Added component"`
-. `git push`
-. `cd ../[$TENANT_ID]`
-** This folder is a clone of the `tutorial-tenant` project in your GitLab account.
-. Edit `/common.yml` and add this text:
-+
+
+Commit and push your changes, and `cd` to another folder:
+
+[source,bash]
+----
+$ git commit -a -m "Added component"
+$ git push
+$ cd ../[$TENANT_ID]
+----
+
+This repository is a clone of the `tutorial-tenant` project in your GitLab account.
+
+Edit `/common.yml` and add this text:
+
 [source,bash]
 ----
 classes:
 - components.fortune
 ----
-. `git commit -a -m "Added component"`
-. `git push`
-. `cd ../../../`
+
+And once again, commit and push your changes.
+
+[source,bash]
+----
+$ git commit -a -m "Added component"
+$ git push
+$ cd ../../../
+----
 
 NOTE: Since we edited the `common.yml` file, the changes will propagate to all clusters.
 
-==== Final Step
+=== Final Compilation
 
 We're ready! Now we just have to recompile both catalogs and push the changes.
 
@@ -430,33 +439,45 @@ https://argoproj.github.io/argo-cd/[ArgoCD] is a declarative GitOps continuous d
 
 First, retrieve the ArgoCD admin password with this command:
 
-`kubectl --context minikube -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy`
+[source,bash]
+----
+$ kubectl --context minikube -n syn get secret/steward -o jsonpath='{.data.token}'  | base64 --decode | pbcopy
+----
 
 TIP: The `pbcopy` command is usually found in macOS. In Linux, you can `alias pbcopy="xclip -selection clipboard"`.
 
 Second, redirect trafic to ArgoCD:
 
-`kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80`
+[source,bash]
+----
+$ kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80
+----
 
 And third, open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
 
 .ArgoCD console
 image::argocd.png[]
 
-=== Execute the fortune-service
+=== Executing the fortune-service
 
 Of course you can test the `fortune-service` running in your clusters using the following commands:
 
 For k3d:
 
-. `kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000`
-. And then `curl http://localhost:8081` in a different terminal.
+[source,bash]
+----
+$ kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000
+$ curl http://localhost:8081 # in a different terminal
+----
 
 TIP: In K9s you can add port forwarding to a pod simply by selecting the pod and hitting the kbd:[Shift + F] key combination.
 
 For Minikube:
 
-. `curl $(minikube service fortune-service --namespace syn-fortune --url)`
+[source,bash]
+----
+$ curl $(minikube service fortune-service --namespace syn-fortune --url)
+----
 
 === Cleanup
 
@@ -501,4 +522,4 @@ Commodore components can be used to deploy monitoring tools, to change the state
 
 Creating Commodore components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures.
 
-If you create a new open source Commodore component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and maybe even contribute back to your effort.
+If you create a new open source Commodore component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and who knows? Maybe even contribute back to your effort.
