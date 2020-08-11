@@ -52,7 +52,7 @@ To follow this tutorial you will need quite an array of software in your system:
 ** https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension]
 
 
-This tutorial project contains a `requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
+This tutorial project contains a `0_requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
 
 IMPORTANT: The specified version numbers are the minimum required. Also, please make sure that both your GitLab and GitHub accounts must have SSH keys configured.
 
@@ -60,7 +60,7 @@ IMPORTANT: The specified version numbers are the minimum required. Also, please 
 
 Make sure to follow these three steps *before* starting the tutorial:
 
-. Check all required tools by running the `./requirements.sh` script.
+. Check all required tools by running the `./0_requirements.sh` script.
 . In GitHub, fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal account.
 . And in GitLab, create a https://gitlab.com/profile/personal_access_tokens[Personal Access Token] with API access.
 
