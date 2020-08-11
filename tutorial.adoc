@@ -431,7 +431,7 @@ Identity added: /app/.ssh/id_rsa (user@domain.com)
 
 Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
 
-=== 
+With https://k9scli.io/[K9s] we can watch our clusters as they pick up the changes and apply them in all transparency. The namespace `syn-fortune` will contain the required deployment, pods, and service.
 
 .K9s showing the deployment in the `syn-fortune` namespace in K3s
 image::k9s_k3d.png[]
