@@ -13,7 +13,7 @@ WARNING: This tutorial has been prepared with version v0.2.0 of Commodore. Proje
 In this tutorial, we are going to do the following:
 
 . First, we are going to launch two lightweight Kubernetes clusters, one Minikube and one Rancher K3s, and then we're going to federate them under the same tenant.
-. Then, we are going to deploy a workload in both clusters at the same time.
+. Then, we are going to create a very simple component, one that will deploy a workload in both clusters at the same time.
 . Finally, we are going to wrap up, not without first cleaning up all the different pieces of this experiment.
 
 This tutorial should give you a good idea of how all the different pieces of Project Syn work together, and how Commodore components fit in the picture.
@@ -23,7 +23,7 @@ This tutorial should give you a good idea of how all the different pieces of Pro
 As for the required knowledge bits and pieces:
 
 * You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
-* You should have already followed the https://docs.syn.tools/syn/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
+* You should have already followed the https://docs.syn.tools/syn/tutorials/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
 
 WARNING: This tutorial *was built and tested on a Linux system*; it should, however, be easily ported to macOS, since most of the tools used are cross-platform.
 
@@ -46,7 +46,7 @@ IMPORTANT: The specified version numbers are the minimum required. Also, please 
 
 == Steps
 
-Are you ready? The let's get started!
+Are you ready? Then let's get started!
 
 === 1. Preparations
 
@@ -56,7 +56,7 @@ Make sure to follow these three steps *before* starting the tutorial:
 . In GitHub, fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal account.
 . And in GitLab, create a https://gitlab.com/profile/personal_access_tokens[Personal Access Token] with API access.
 
-CAUTION: Remember to save your token somewhere, since it will only appear once!
+CAUTION: Remember to save your token somewhere, since it will only be visible once!
 
 .Creating a GitLab token
 image::gitlab_token.png[]
@@ -77,12 +77,12 @@ $ export GITLAB_USERNAME=your_gitlab_username
 $ export GITHUB_USERNAME=your_github_username
 ----
 
-To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not go through them here. The script is quite self-explanatory, though:
+To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not go through them here. The script is quite self-explanatory, though:
 
 [source,bash]
 ----
 # …
-include::1_lieutenant.sh[tag=demo]
+include::1_lieutenant_on_minikube.sh[tag=demo]
 # …
 ----
 
@@ -95,9 +95,9 @@ image::gitlab_01.png[]
 
 === 3. Bootstrapping Commodore on Minikube
 
-The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore.sh` script.
+The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script.
 
-The `./2_commodore.sh` script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` should contain the path to your personal SSH public key.
+The `./2_commodore_on_minikube.sh` script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` should contain the path to your personal SSH public key.
 
 [source,bash]
 ----
@@ -112,7 +112,7 @@ Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[
 
 We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh` script.
 
-=== 5. Install Steward on K3s
+=== 5. Synthesize a K3s Cluster
 
 Now it is time to spin our second cluster, this time using K3s, itself managed using K3d. Again, a couple of scripts will make our life easier.
 
@@ -123,11 +123,13 @@ First we need to get some variables from our environment:
 $ source ./env.sh
 ----
 
-And now we can run a script that will not only spin a new k3s cluster, but will also install Steward in it:
+And now we can run a script that will not only spin a new k3s cluster, but will also install Steward and register it as a cluster belonging to our tenant.
+
+TIP: The term "synthesize" means performing all the required steps so that a cluster can be managed as part of a Project Syn metacluster.
 
 [source,bash]
 ----
-$ ./4_steward_on_k3s.sh
+$ ./4_synthesize_on_k3s.sh
 ----
 
 And now we are ready: we have two working Kubernetes clusters, one Minikube and one k3s, and both are assigned to the same tenant. To verify this, we ask now the Lieutenant API, installed in our Minikube cluster:
@@ -152,18 +154,6 @@ NOTE: For more information, check out the https://syn.tools/lieutenant-operator/
 
 This section will dive into the actual work of creating Commodore components.
 
-==== Checking out Commodore
-
-We need to clone the official Commodore project from GitHub first, and inside of that clone of the Commodore source code, we will create a few folders, and a new file called `.env`:
-
-[source,bash]
-----
-$ git clone git@github.com:projectsyn/commodore.git
-$ cd commodore
-$ mkdir -p catalog inventory dependencies compiled
-$ touch .env
-----
-
 ==== Using the Commodore Docker Image
 
 We are going to use now the `commodore` tool to generate our component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make `commodore` much easier to use:
@@ -173,7 +163,7 @@ We are going to use now the `commodore` tool to generate our component. This too
 $ which commodore
 commodore not found
 
-$ source ../commodore.sh
+$ source ./commodore.sh
 
 $ which commodore
 commodore () {
@@ -181,7 +171,18 @@ commodore () {
 }
 ----
 
-We also need to define the contents of the `.env` file, used by Docker to set environment variables required by the `commodore` command. We can do this in a snap with this command, and in my machine this is the result:
+==== Checking out Commodore
+
+In order to create a new component, we need to clone the official Commodore project from GitHub first. Inside of that clone of the Commodore source code we will create a few folders:
+
+[source,bash]
+----
+$ git clone git@github.com:projectsyn/commodore.git
+$ cd commodore
+$ mkdir -p catalog inventory dependencies compiled
+----
+
+We also need to define the contents of the `.env` file, used by Docker to set environment variables required by the `commodore` command. We can do this in a snap with this command, which should display an output similar to this one:
 
 [source,bash]
 ----
@@ -437,7 +438,7 @@ For Minikube:
 We are done! You can now remove the clusters in your computer, and also remove the projects you've created in GitHub and GitLab:
 
 * Run the `./5_delete.sh` script to deregister and stop all local clusters.
-* Remove your clone of `commodore-defaults` on GitHub
+* Remove your clone of `commodore-defaults` on GitHub.
 * Remove your GitLab projects: `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s`
 
 [source,bash]
