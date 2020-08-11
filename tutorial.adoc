@@ -433,7 +433,7 @@ Since ArgoCD, itself managed by Steward, is watching these repositories, it will
 
 === 
 
-.K9s showing the `syn-fortune` deployment in K3s
+.K9s showing the deployment in the `syn-fortune` namespace in K3s
 image::k9s_k3d.png[]
 
 .K9s showing the `syn-fortune` and `lieutenant` pods in Minikube
@@ -463,6 +463,8 @@ And third, open http://localhost:8080 with the username `admin` and the password
 
 .ArgoCD console
 image::argocd.png[]
+
+You can repeat this steps to access the console in the K3s cluster, by changing the value of the `kubectl --context` parameter.
 
 === Executing the fortune-service
 
