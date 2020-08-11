@@ -34,8 +34,9 @@ To follow this tutorial you will need quite an array of software in your system:
 * https://k3d.io/[K3d] version 3.0
 * A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured]. You can use a private GitLab instance, if you have one nearby.
 * A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
-* The following commands must be installed and available in the path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], https://github.com/mikefarah/yq[yq], https://k9scli.io/[k9s] `ssh-keyscan`, and `base64`
-* As an editor, we recommend using https://code.visualstudio.com/[Visual Studio Code] with the following extensions:
+* The following commands must be installed and available in your path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], `ssh-keyscan`, and `base64`.
+** Although not required by this tutorial, you could also install https://github.com/mikefarah/yq[yq] and https://k9scli.io/[k9s], both very useful when working with Commodore Components.
+* As an editor, for this tutorial we will be using https://code.visualstudio.com/[Visual Studio Code] with the following extensions:
 ** https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet]
 ** https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension]
 
@@ -95,9 +96,7 @@ image::gitlab_01.png[]
 
 === 3. Bootstrapping Commodore on Minikube
 
-The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script.
-
-The `./2_commodore_on_minikube.sh` script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` should contain the path to your personal SSH public key.
+The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script. This script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` which should contain the path to your personal SSH public key. For example:
 
 [source,bash]
 ----
@@ -156,22 +155,22 @@ This section will dive into the actual work of creating Commodore components.
 
 ==== Using the Commodore Docker Image
 
-We are going to use now the `commodore` tool to generate our component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make `commodore` much easier to use:
+We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make using `commodore` a much simpler task:
 
 [source,bash]
 ----
 $ which commodore
 commodore not found
 
-$ source ./commodore.sh
+$ source ./commodore_command.sh
 
 $ which commodore
 commodore () {
-	docker run --env-file=.env --interactive=true --tty --rm --user="$(id -u)" --volume ~/.ssh:/app/.ssh:ro --volume "$PWD"/compiled/:/app/compiled/ --volume "$PWD"/catalog/:/app/catalog --volume "$PWD"/dependencies/:/app/dependencies/ --volume "$PWD"/inventory/:/app/inventory/ --volume ~/.gitconfig:/app/.gitconfig:ro projectsyn/commodore:v0.2.0 "$*"
+	docker run --env-file=.env --interactive=true --tty --rm --user="$(id -u)" --volume "$HOME"/.ssh:/app/.ssh:ro --volume "$PWD"/compiled/:/app/compiled/ --volume "$PWD"/catalog/:/app/catalog --volume "$PWD"/dependencies/:/app/dependencies/ --volume "$PWD"/inventory/:/app/inventory/ --volume ~/.gitconfig:/app/.gitconfig:ro projectsyn/commodore:v0.2.0 "$*"
 }
 ----
 
-==== Checking out Commodore
+==== Checking out the Commodore Project
 
 In order to create a new component, we need to clone the official Commodore project from GitHub first. Inside of that clone of the Commodore source code we will create a few folders:
 
@@ -258,9 +257,8 @@ The https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet] extension for V
 .Previewing the Jsonnet compilation
 image::vscode_02.png[]
 
-[TIP]
-.Configuring the Jsonnet preview pane
-====
+==== Configuring the Jsonnet preview pane
+
 The Jsonnet extension for Visual Studio Code requires some values in `settings.json` in order to work properly:
 
 [source,json]
@@ -274,7 +272,6 @@ The Jsonnet extension for Visual Studio Code requires some values in `settings.j
 ----
 
 The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command.
-====
 
 [TIP]
 .Creating Jsonnet files from YAML
@@ -318,7 +315,7 @@ metadata:
   name: syn-tutorial
 ----
 
-Our component compiles! Let us create a new project in GitHub and push our code:
+Our component compiles! Let us create a new project in GitHub to push our code into:
 
 image::github_new_proj.png[]
 
@@ -367,7 +364,7 @@ NOTE: Since we edited the `common.yml` file, the changes will propagate to all c
 
 ==== Final Step
 
-We're ready! Now we just have to recompile the catalog and push the changes.
+We're ready! Now we just have to recompile both catalogs and push the changes.
 
 [source,bash]
 ----
@@ -399,11 +396,24 @@ Updating catalog repository...
 Catalog compiled! 🎉
 ----
 
+We have to do this for both clusters!
+
+[source,bash]
+----
+$ commodore catalog compile --push $K3S_CLUSTER_ID
+Agent pid 9
+Enter passphrase for /app/.ssh/id_rsa:
+Identity added: /app/.ssh/id_rsa (user@domain.com)
+...
+----
+
 Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
+
+TODO: Add K9s screenshot showing the `fortune-service` in both clusters.
 
 === Accessing the ArgoCD Console
 
-You can access the ArgoCD console in both clusters through these steps:
+https://argoproj.github.io/argo-cd/[ArgoCD] is a declarative GitOps continuous deployment tool for Kubernetes. It is managed by Steward, and takes care of synchronizing and automatically updating the state of our clusters following changes in the configuration. You can access the ArgoCD console in both clusters through these steps:
 
 First, retrieve the ArgoCD admin password with this command:
 
@@ -428,6 +438,8 @@ For k3d:
 
 . `kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000`
 . And then `curl http://localhost:8081` in a different terminal.
+
+TIP: In K9s you can add port forwarding to a pod simply by selecting the pod and hitting the kbd:[Shift + F] key combination.
 
 For Minikube:
 
