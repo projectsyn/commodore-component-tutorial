@@ -2,12 +2,10 @@
 
 This tutorial provides all the information required to create your first Commodore component.
 
-== Requirements
+== Contents
 
-https://kubernetes.io/docs/tasks/tools/install-minikube/[Minikube] or https://k3d.io/[K3d]
+The contents of the tutorial are in the `tutoria.adoc` file.
 
-== Steps
+== Build PDF
 
-. First
-. Second
-. Third
+Use the `make pdf` command to create a PDF file out of the source Asciidoc file. This requires Docker.

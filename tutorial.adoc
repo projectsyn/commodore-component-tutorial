@@ -1,3 +1,16 @@
+:author: VSHN AG
+:revdate: {docdate}
+:revnumber: 1.13
+:email:  handbook@vshn.ch
+:copyright: CC-BY-SA 3.0
+:doctitle: Tutorial: Writing your First Commodore Component
+:producer: VSHN AG
+:creator: VSHN AG
+:description: A guide to create your first Commodore Component
+:keywords: VSHN, VSHNeer, work, systems, DevOps, Project Syn
+:lang: en
+:imagesdir: {docdir}/assets/images
+
 = Tutorial: Writing your First Commodore Component
 
 This tutorial will guide you through the required steps to create your first Commodore component.
@@ -49,7 +62,7 @@ IMPORTANT: The specified version numbers are the minimum required. Also, please 
 
 Are you ready? Then let's get started!
 
-=== 1. Preparations
+=== Preparations
 
 Make sure to follow these three steps *before* starting the tutorial:
 
@@ -62,7 +75,7 @@ CAUTION: Remember to save your token somewhere, since it will only be visible on
 .Creating a GitLab token
 image::gitlab_token.png[]
 
-=== 2. Install Lieutenant Operator and API on Minikube
+=== Install Lieutenant Operator and API on Minikube
 
 The https://syn.tools/lieutenant-operator/[Lieutenant Operator] and its https://syn.tools/lieutenant-api/home.html[API] are the major elements of a Project Syn installation. They provide a complete catalog of information about all of your clusters, and allow developers to operate on those clusters through a unique API.
 
@@ -94,7 +107,7 @@ Once the script has run, you will find two new private repositories in your GitL
 .GitLab account after installation of Lieutenant
 image::gitlab_01.png[]
 
-=== 3. Bootstrapping Commodore on Minikube
+=== Bootstrapping Commodore on Minikube
 
 The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script. This script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` which should contain the path to your personal SSH public key. For example:
 
@@ -105,13 +118,13 @@ $ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
 
 IMPORTANT: Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
 
-=== 4. Install Steward on Minikube
+=== Install Steward on Minikube
 
 Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[Steward] on our cluster. This tool is in charge of watching the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
 
 We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh` script.
 
-=== 5. Synthesize a K3s Cluster
+=== Synthesize a K3s Cluster
 
 Now it is time to spin our second cluster, this time using K3s, itself managed using K3d. Again, a couple of scripts will make our life easier.
 
@@ -149,7 +162,7 @@ Of course, in your case the NAME column will show different, random values. But 
 
 NOTE: For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
 
-=== 6. Creating a Commodore Component
+=== Creating a Commodore Component
 
 This section will dive into the actual work of creating Commodore components.
 
