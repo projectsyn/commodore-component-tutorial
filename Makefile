@@ -7,7 +7,10 @@ asciidoctor_opts ?= --destination-dir=$(out_dir)
 
 all: pdf
 
-pdf: tutorial.pdf
+pdf: build/tutorial.pdf
 
-tutorial.pdf: tutorial.adoc
+build/tutorial.pdf: tutorial.adoc
 	$(asciidoctor_pdf_cmd) $(asciidoctor_opts) $<
+
+clean:
+	rm -rf build
