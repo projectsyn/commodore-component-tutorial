@@ -14,5 +14,5 @@ commodore () {
     --volume "$PWD"/inventory/:/app/inventory/ \
     --volume ~/.gitconfig:/app/.gitconfig:ro \
     projectsyn/commodore:v0.2.0 \
-    "$*"
+    $*
 }

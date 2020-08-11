@@ -211,8 +211,8 @@ Now we are ready to compile our catalog. Every time you call the `commodore` too
 
 [source,bash]
 ----
-$ commodore catalog compile --push $MINIKUBE_CLUSTER_ID
-$ commodore catalog compile --push $K3S_CLUSTER_ID
+$ commodore catalog compile $MINIKUBE_CLUSTER_ID
+$ commodore catalog compile $K3S_CLUSTER_ID
 ----
 
 NOTE: We must repeat this operation for each cluster.
@@ -384,9 +384,9 @@ $ cd ../../../
 
 NOTE: Since we edited the `common.yml` file, the changes will propagate to all clusters.
 
-=== Final Compilation
+=== Deployment
 
-We're ready! Now we just have to recompile both catalogs and push the changes.
+We're ready! Now we just have to recompile both catalogs and push the changes. For that we need to recompile the catalogs, but this time using the `--push` parameter, so that our changes are sent to their respective GitLab repositories.
 
 [source,bash]
 ----
@@ -431,7 +431,13 @@ Identity added: /app/.ssh/id_rsa (user@domain.com)
 
 Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
 
-TODO: Add K9s screenshot showing the `fortune-service` in both clusters.
+=== 
+
+.K9s showing the `syn-fortune` deployment in K3s
+image::k9s_k3d.png[]
+
+.K9s showing the `syn-fortune` and `lieutenant` pods in Minikube
+image::k9s_minikube.png[]
 
 === Accessing the ArgoCD Console
 
