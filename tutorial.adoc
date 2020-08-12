@@ -36,7 +36,7 @@ As for the required knowledge bits and pieces:
 * You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
 * You should have already followed the https://docs.syn.tools/syn/tutorials/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
 
-WARNING: This tutorial *was built and tested on a Linux system*; it should, however, be easily ported to macOS, since most of the tools used are cross-platform.
+WARNING: This tutorial *was built and tested on a Linux system*; it should, however, be easily ported to macOS, since all tools referenced here are cross-platform.
 
 To follow this tutorial you will need quite an array of software in your system:
 
