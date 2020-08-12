@@ -326,19 +326,19 @@ Now that we have written our component, let's compile it to see if it's generati
 
 [source,bash]
 ----
-$ commodore component compile dependencies/fortune          
+$ commodore component compile dependencies/fortune
 Agent pid 9
-Enter passphrase for /app/.ssh/id_rsa: 
+Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
 Compile component fortune...
 Updating Jsonnet libraries...
 Compiling catalog...
  > Component compiled to /app/compiled/test
 
-$ ls compiled/test/fortune 
+$ ls compiled/test/fortune
 .  ..  deployment.yaml  namespace.yaml  service.yaml
 
-$ cat compiled/test/fortune/namespace.yaml        
+$ cat compiled/test/fortune/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -420,10 +420,10 @@ We're ready! Now we just have to recompile both catalogs and push the changes. F
 [source,bash]
 ----
 $ kubectl --context minikube -n lieutenant get cluster
-NAME                    DISPLAY NAME       TENANT                  AGE                                                                                                                
-c-aged-cloud-4988       Kind cluster       t-weathered-fire-7929   3m58s                                                                                                                                                                                 
-c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s                                                                                                                                                                                 
-c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m          
+NAME                    DISPLAY NAME       TENANT                  AGE
+c-aged-cloud-4988       Kind cluster       t-weathered-fire-7929   3m58s
+c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s
+c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m
 
 $ commodore catalog compile c-solitary-voice-5640
 Agent pid 9
@@ -514,6 +514,7 @@ For k3d:
 [source,bash]
 ----
 $ kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000
+
 $ curl http://localhost:8081 # in a different terminal
 ----
 
@@ -536,7 +537,7 @@ We are done! You can now remove the clusters in your computer, and also remove t
 
 [source,bash]
 ----
-$ ./5_delete.sh        
+$ ./5_delete.sh
 Switched to context "minikube".
 ===> Minikube running
 ===> Find Tenant ID
@@ -553,12 +554,12 @@ tenant.syn.tools "t-solitary-field-4017" deleted
 🔥  Deleting container "minikube" ...
 🔥  Removing /home/username/.minikube/machines/minikube ...
 💀  Removed all traces of the "minikube" cluster.
-INFO[0000] Deleting cluster 'projectsyn'                
-INFO[0002] Deleted k3d-projectsyn-server-0              
-INFO[0002] Deleting image volume 'k3d-projectsyn-images' 
-INFO[0002] Removing cluster details from default kubeconfig... 
-INFO[0002] Removing standalone kubeconfig file (if there is one)... 
-INFO[0002] Successfully deleted cluster projectsyn!  
+INFO[0000] Deleting cluster 'projectsyn'
+INFO[0002] Deleted k3d-projectsyn-server-0
+INFO[0002] Deleting image volume 'k3d-projectsyn-images'
+INFO[0002] Removing cluster details from default kubeconfig...
+INFO[0002] Removing standalone kubeconfig file (if there is one)...
+INFO[0002] Successfully deleted cluster projectsyn!
 ----
 
 == Conclusion
