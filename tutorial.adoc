@@ -96,6 +96,10 @@ include::1_lieutenant_on_minikube.sh[tag=demo]
 
 This script will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
 
+It will also expose the Lieutenant API using the https://ngrok.com/[ngrok] reverse proxy tool.
+
+WARNING: You do not need a commercial (paying) ngrok account to use it; just https://ngrok.com/download[download] the version corresponding to your system and make sure it is accessible through your `PATH`.
+
 Once the script has run, you will find two new private repositories in your GitLab account: one named `tutorial-cluster-minikube` and another named `tutorial-tenant`. Project Syn tools use these repositories to perform https://www.gitops.tech/["GitOps"] operations on all the clusters.
 
 .GitLab account after installation of Lieutenant
@@ -120,7 +124,7 @@ We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh`
 
 === Synthesize a K3s Cluster
 
-Now it is time to spin our second cluster, this time using K3s, itself managed using K3d. Again, a couple of scripts will make our life easier.
+Now it is time to spin our second cluster, this time using K3s, itself managed using https://k3d.io/[K3d]. Again, a couple of scripts will make our life easier.
 
 First we need to get some variables from our environment:
 
@@ -129,7 +133,7 @@ First we need to get some variables from our environment:
 $ source ./env.sh
 ----
 
-And now we can run a script that will not only spin a new k3s cluster, but will also install Steward and register it as a cluster belonging to our tenant.
+Now we can run a script that will not only spin a new k3s cluster, but will also install Steward and register it as a cluster belonging to our tenant. That is, we will "synthesize" our cluster.
 
 TIP: The term "synthesize" means performing all the required steps so that a cluster can be managed as part of a Project Syn metacluster.
 
@@ -163,13 +167,15 @@ Since we're using `ngrok` to expose our Lieutenant API we can inspect all the re
 .Lieutenant API session inspected through ngrok
 image::ngrok_inspect.png[]
 
-=== Synthesize a Kind of Microk8s cluster
+=== Synthesize Kind or Microk8s clusters
 
-This is an optional step! If you feel adventurous and have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
+IMPORTANT: This is an optional step!
+
+If you feel adventurous enough, and still have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
 
 == Creating a Commodore Component
 
-This section will dive into the actual work of creating Commodore components.
+Now we're getting to the actual subject of this tutorial! Let us dive into the real task of creating a new Commodore component.
 
 === Using the Commodore Docker Image
 

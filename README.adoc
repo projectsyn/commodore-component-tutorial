@@ -4,7 +4,11 @@ This tutorial provides all the information required to create your first Commodo
 
 == Contents
 
-The contents of the tutorial are in the `tutoria.adoc` file.
+The contents of the tutorial are in the `tutorial.adoc` file. The scripts help encapsulate the knowledge required to spin up a Project Syn installation with at least 2 clusters.
+
+== Requirements
+
+The `0_requirements.sh` script shows the current versions of all required software.
 
 == Build PDF
 
