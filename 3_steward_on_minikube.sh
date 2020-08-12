@@ -10,7 +10,7 @@ CLUSTER_ID=$(kubectl --context minikube -n lieutenant get cluster | grep Minikub
 check_variable "CLUSTER_ID" $CLUSTER_ID
 
 echo "===> Find Lieutenant URL"
-LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "http://lieutenant." a[1] ".nip.io:" a[2] }')
+LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
 check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 
 echo "===> Find Lieutenant API token"

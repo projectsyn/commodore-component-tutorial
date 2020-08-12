@@ -19,15 +19,15 @@ fi
 echo "===> OK: commodore defaults forked: $GITHUB_COMMODORE_DEFAULTS"
 
 echo "===> Find Lieutenant URL"
-LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "http://lieutenant." a[1] ".nip.io:" a[2]} "/"')
+LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
 check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 
 echo "===> Find Cluster ID"
-CLUSTER_ID=$(kubectl -n lieutenant get cluster | grep c- | awk 'NR==1{print $1}')
+CLUSTER_ID=$(kubectl --context minikube -n lieutenant get cluster | grep c- | awk 'NR==1{print $1}')
 check_variable "CLUSTER_ID" $CLUSTER_ID
 
 echo "===> Find Lieutenant Token"
-LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
+LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
 
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"

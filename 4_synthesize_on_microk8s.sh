@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 source lib/functions.sh
-source lib/k3s.sh
 
 check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
 check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
@@ -11,16 +10,15 @@ check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
 check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
 check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
 
-# Launch K3s
-k3d cluster create projectsyn
-
-wait_for_k3s
-wait_for_traefik
+# Launch microk8s
+microk8s start
+microk8s enable dns
+microk8s status --wait-ready
 
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Register this cluster via the API"
-CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"K3s cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-k3s.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
+CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Microk8s cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-microk8s.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
 check_variable "CLUSTER_ID" $CLUSTER_ID
 
 echo "===> Kickstart Commodore"
@@ -47,11 +45,11 @@ echo "===> Retrieve the Steward install URL"
 STEWARD_INSTALL=$(curl --header "$LIEUTENANT_AUTH" --silent "${LIEUTENANT_URL}/clusters/${CLUSTER_ID}" | jq -r ".installURL")
 echo "===> Steward install URL: $STEWARD_INSTALL"
 
-echo "===> Install Steward in the local k3s cluster"
-kubectl --context k3d-projectsyn apply -f "$STEWARD_INSTALL"
+echo "===> Install Steward in the local kind cluster"
+microk8s.kubectl apply -f "$STEWARD_INSTALL"
 
 echo "===> Check that Steward is running and that Argo CD Pods are appearing"
-kubectl --context k3d-projectsyn -n syn get pod
+microk8s.kubectl -n syn get pod
 
 echo ""
 echo "===> STEWARD DONE"

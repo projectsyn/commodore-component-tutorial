@@ -40,17 +40,17 @@ WARNING: This tutorial *was built and tested on a Linux system*; it should, howe
 
 To follow this tutorial you will need quite an array of software in your system:
 
-* https://www.docker.com/[Docker] version 19, or https://podman.io/[podman] version 2.0
+* https://ngrok.com/[ngrok] version 2.3
+* https://www.docker.com/[Docker] version 19
 * https://kubernetes.io/docs/tasks/tools/install-minikube/[Minikube] version 1.12
 * https://k3d.io/[K3d] version 3.0
 * A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured]. You can use a private GitLab instance, if you have one nearby.
 * A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
 * The following commands must be installed and available in your path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], `ssh-keyscan`, and `base64`.
 ** Although not required by this tutorial, you could also install https://github.com/mikefarah/yq[yq] and https://k9scli.io/[k9s], both very useful when working with Commodore Components.
-* As an editor, for this tutorial we will be using https://code.visualstudio.com/[Visual Studio Code] with the following extensions:
+* We will be editing files with https://code.visualstudio.com/[Visual Studio Code] together with the following extensions:
 ** https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet]
 ** https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension]
-
 
 This tutorial project contains a `0_requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
 
@@ -156,6 +156,17 @@ Of course, in your case the NAME column will show different, random values. But 
 
 NOTE: For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
 
+==== Inspecting the Lieutenant API traffic
+
+Since we're using `ngrok` to expose our Lieutenant API we can inspect all the requests exchanged between the clusters and Lieutenant. For that, just open a browser window and point it to http://localhost:4040/inspect/http. The following image shows a screenshot of a typical Lieutenant API session.
+
+.Lieutenant API session inspected through ngrok
+image::ngrok_inspect.png[]
+
+=== Synthesize a Kind of Microk8s cluster
+
+This is an optional step! If you feel adventurous and have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
+
 == Creating a Commodore Component
 
 This section will dive into the actual work of creating Commodore components.
@@ -211,11 +222,23 @@ Now we are ready to compile our catalog. Every time you call the `commodore` too
 
 [source,bash]
 ----
-$ commodore catalog compile $MINIKUBE_CLUSTER_ID
-$ commodore catalog compile $K3S_CLUSTER_ID
+$ kubectl --context minikube -n lieutenant get cluster
+NAME                    DISPLAY NAME       TENANT                  AGE
+c-aged-cloud-4988       Kind cluster       t-weathered-fire-7929   3m58s
+c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s
+c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m
+
+$ commodore catalog compile c-aged-cloud-4988
+...
+
+$ commodore catalog compile c-late-cloud-248
+...
+
+$ commodore catalog compile c-solitary-voice-5640
+...
 ----
 
-NOTE: We must repeat this operation for each cluster.
+NOTE: We must repeat this operation for each cluster, and of course, you should use the cluster IDs got 
 
 === Creating a New Commodore Component
 
@@ -390,7 +413,13 @@ We're ready! Now we just have to recompile both catalogs and push the changes. F
 
 [source,bash]
 ----
-$ commodore catalog compile --push $MINIKUBE_CLUSTER_ID
+$ kubectl --context minikube -n lieutenant get cluster
+NAME                    DISPLAY NAME       TENANT                  AGE                                                                                                                
+c-aged-cloud-4988       Kind cluster       t-weathered-fire-7929   3m58s                                                                                                                                                                                 
+c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s                                                                                                                                                                                 
+c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m          
+
+$ commodore catalog compile c-solitary-voice-5640
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
@@ -418,15 +447,19 @@ Updating catalog repository...
 Catalog compiled! 🎉
 ----
 
-We have to do this for both clusters!
+We have to do this for all clusters!
 
 [source,bash]
 ----
-$ commodore catalog compile --push $K3S_CLUSTER_ID
+$ commodore catalog compile c-aged-cloud-4988
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
 ...
+
+$ commodore catalog compile c-late-cloud-248
+...
+
 ----
 
 Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.

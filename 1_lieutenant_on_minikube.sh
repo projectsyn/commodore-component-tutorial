@@ -34,8 +34,12 @@ echo "===> For Minikube we must delete the default service and re-create it"
 kubectl -n lieutenant delete svc lieutenant-api
 kubectl -n lieutenant expose deployment lieutenant-api --type=NodePort --port=8080
 
-echo "===> Find Lieutenant URL"
-LIEUTENANT_URL=$(minikube service lieutenant-api -n lieutenant --url | sed 's/http:\/\///g' | awk '{split($0,a,":"); print "lieutenant." a[1] ".nip.io:" a[2]}')
+echo "===> Launch ngrok in the background tunneling towards the Lieutenant API"
+setsid ./ngrok.sh >/dev/null 2>&1 < /dev/null &
+sleep 2s
+
+echo "===> Find external Lieutenant URL through the ngrok API"
+LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
 echo "===> Lieutenant API: $LIEUTENANT_URL"
 # end::demo[]
 
@@ -64,7 +68,7 @@ kubectl -n lieutenant get tenant
 kubectl -n lieutenant get gitrepo
 
 echo "===> Register a Lieutenant Cluster via the API"
-CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Minikube cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-minikube.git\" } }" "http://${LIEUTENANT_URL}/clusters" | jq -r ".id")
+CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Minikube cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-minikube.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
 echo "Cluster ID: $CLUSTER_ID"
 
 echo "===> Retrieve the registered Clusters via API and directly on the cluster"

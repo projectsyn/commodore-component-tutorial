@@ -7,6 +7,9 @@ trim () {
 	echo -n "$var"
 }
 
+NGROK_VERSION=$(ngrok version)
+echo $NGROK_VERSION
+
 DOCKER_VERSION=$(docker version | grep Version -m 1)
 DOCKER_VERSION=$(trim "$DOCKER_VERSION")
 echo "Docker $DOCKER_VERSION"

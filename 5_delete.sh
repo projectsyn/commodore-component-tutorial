@@ -23,4 +23,4 @@ kubectl --context minikube -n lieutenant delete cluster "$MINIKUBE_CLUSTER_ID"
 kubectl --context minikube -n lieutenant delete tenant "$TENANT_ID"
 minikube delete
 k3d cluster delete projectsyn
-
+killall ngrok
