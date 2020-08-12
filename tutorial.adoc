@@ -244,7 +244,7 @@ $ commodore catalog compile c-solitary-voice-5640
 ...
 ----
 
-NOTE: We must repeat this operation for each cluster, and of course, you should use the cluster IDs got 
+NOTE: We must repeat this operation for each cluster, and of course, you should use the cluster IDs you got from the last `kubectl` command above.
 
 === Creating a New Commodore Component
 
