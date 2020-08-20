@@ -13,11 +13,11 @@
 
 = Tutorial: Writing your First Commodore Component
 
-This tutorial will guide you through the required steps to create your first Commodore component.
+This tutorial will guide you through the required steps to create your first Commodore Component.
 
-Commodore components allow you to customize and extend the number and variety of tasks that you can perform with https://syn.tools/[Project Syn]. Using Commodore components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
+Commodore Components allow you to customize and extend the number and variety of tasks that you can perform with https://syn.tools/[Project Syn]. Using Commodore Components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
 
-There are many https://github.com/topics/commodore-component[Commodore components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift] clusters.
+There are many https://github.com/topics/commodore-component[Commodore Components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift] clusters.
 
 WARNING: This tutorial has been prepared with version v0.2.0 of Commodore. Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
 
@@ -27,7 +27,7 @@ In this tutorial, we are going to do the following:
 . Then, we are going to create a very simple component, one that will deploy a workload in both clusters at the same time.
 . Finally, we are going to wrap up, not without first cleaning up all the different pieces of this experiment.
 
-This tutorial should give you a good idea of how all the different pieces of Project Syn work together, and how Commodore components fit in the picture.
+This tutorial should give you a good idea of how all the different pieces of Project Syn work together, and how Commodore Components fit in the picture.
 
 == Requirements
 
@@ -118,7 +118,7 @@ IMPORTANT: Do not press the kbd:[Enter] key when prompted with the `If you don't
 
 === Install Steward on Minikube
 
-Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[Steward] on our cluster. This tool is in charge of watching the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
+Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[Steward] on our cluster. This tool is in charge of bootstrapping https://argoproj.github.io/argo-cd/[Argo CD] which watches the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
 
 We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh` script.
 
@@ -142,7 +142,7 @@ TIP: The term "synthesize" means performing all the required steps so that a clu
 $ ./4_synthesize_on_k3s.sh
 ----
 
-And now we are ready: we have two working Kubernetes clusters, one Minikube and one k3s, and both are assigned to the same tenant. To verify this, we ask now the Lieutenant API, installed in our Minikube cluster:
+And now we are ready: we have two working Kubernetes clusters, one Minikube and one k3s, and both are assigned to the same tenant. To verify this, we ask now the Lieutenant Custom Resources, available in our Minikube cluster:
 
 [source,bash]
 ----
@@ -175,7 +175,7 @@ If you feel adventurous enough, and still have enough available RAM in your syst
 
 == Creating a Commodore Component
 
-Now we're getting to the actual subject of this tutorial! Let us dive into the real task of creating a new Commodore component.
+Now we're getting to the actual subject of this tutorial! Let us dive into the real task of creating a new Commodore Component.
 
 === Using the Commodore Docker Image
 
@@ -222,7 +222,7 @@ COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/$GITHUB_USERNAME
 
 === Compiling the Commodore Catalog
 
-The first step to create a Commodore component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
+The first step to create a Commodore Component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
 
 Now we are ready to compile our catalog. Every time you call the `commodore` tool you will have to enter the password of your SSH key.
 
@@ -254,7 +254,7 @@ Let us create the component first:
 
 [source,bash]
 ----
-$ commodore component new fortune
+$ Commodore Component new fortune
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
@@ -273,7 +273,7 @@ $ code dependencies/fortune
 .Editing the Fortune component
 image::vscode_01.png[]
 
-Commodore components are written using https://jsonnet.org/[Jsonnet] (pronounced "jay-sonnet"), a data templating language for app and tool developers. If you have never written Jsonnet before, do not worry; just know that all valid JSON files are valid Jsonnet files, and that Jsonnet provides useful extensions, such as variables and functions, and various export formats, which make it easy to write very complex JSON applications with it.
+Commodore Components are usually written using https://jsonnet.org/[Jsonnet] (pronounced "jay-sonnet"), a data templating language for app and tool developers. If you have never written Jsonnet before, do not worry; just know that all valid JSON files are valid Jsonnet files, and that Jsonnet provides useful extensions, such as variables and functions, and various export formats, which make it easy to write very complex JSON applications with it.
 
 In Visual Studio Code, open the `component/main.jsonnet` file, and replace its text with the following:
 
@@ -318,7 +318,7 @@ Open the `component/app.jsonnet` file and replace its contents with the followin
 include::assets/code/app.jsonnet[]
 ----
 
-The `secrets=false` parameter is required. This is due to an incompatibility of ArgoCD with the Kapitan plugin at the time of this writing, which prevents it from loading properly. Since we do not require secrets for this tutorial, we can safely disable this.
+The `secrets=false` parameter is required. Since we do not require secrets for this tutorial, we can safely disable this.
 
 === Compiling the Component
 
@@ -326,7 +326,7 @@ Now that we have written our component, let's compile it to see if it's generati
 
 [source,bash]
 ----
-$ commodore component compile dependencies/fortune
+$ Commodore Component compile dependencies/fortune
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
@@ -468,7 +468,7 @@ $ commodore catalog compile c-late-cloud-248
 
 ----
 
-Since ArgoCD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
+Since Argo CD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
 
 With https://k9scli.io/[K9s] we can watch our clusters as they pick up the changes and apply them in all transparency. The namespace `syn-fortune` will contain the required deployment, pods, and service.
 
@@ -478,11 +478,11 @@ image::k9s_k3d.png[]
 .K9s showing the `syn-fortune` and `lieutenant` pods in Minikube
 image::k9s_minikube.png[]
 
-=== Accessing the ArgoCD Console
+=== Accessing the Argo CD Console
 
-https://argoproj.github.io/argo-cd/[ArgoCD] is a declarative GitOps continuous deployment tool for Kubernetes. It is managed by Steward, and takes care of synchronizing and automatically updating the state of our clusters following changes in the configuration. You can access the ArgoCD console in both clusters through these steps:
+https://argoproj.github.io/argo-cd/[Argo CD] is a declarative GitOps continuous deployment tool for Kubernetes. It is managed by Steward, and takes care of synchronizing and automatically updating the state of our clusters following changes in the configuration. You can access the Argo CD console in both clusters through these steps:
 
-First, retrieve the ArgoCD admin password with this command:
+First, retrieve the Argo CD admin password with this command:
 
 [source,bash]
 ----
@@ -491,17 +491,17 @@ $ kubectl --context minikube -n syn get secret/steward -o jsonpath='{.data.token
 
 TIP: The `pbcopy` command is usually found in macOS. In Linux, you can `alias pbcopy="xclip -selection clipboard"`.
 
-Second, redirect trafic to ArgoCD:
+Second, redirect traffic to Argo CD:
 
 [source,bash]
 ----
-$ kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80
+$ kubectl --context minikube -n syn port-forward svc/Argo CD-server 8080:80
 ----
 
 And third, open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
 
-.ArgoCD console
-image::argocd.png[]
+.Argo CD console
+image::Argo CD.png[]
 
 You can repeat this steps to access the console in the K3s cluster, by changing the value of the `kubectl --context` parameter.
 
@@ -533,7 +533,8 @@ We are done! You can now remove the clusters in your computer, and also remove t
 
 * Run the `./5_delete.sh` script to deregister and stop all local clusters.
 * Remove your clone of `commodore-defaults` on GitHub.
-* Remove your GitLab projects: `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s`
+
+TIP: The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s` have been automatically deleted by the Lieutenant Operator.
 
 [source,bash]
 ----
@@ -564,10 +565,10 @@ INFO[0002] Successfully deleted cluster projectsyn!
 
 == Conclusion
 
-I hope this tutorial has given you a good idea of what Commodore components are, and how they can help you in your DevOps workflow.
+I hope this tutorial has given you a good idea of what Commodore Components are, and how they can help you in your DevOps workflow.
 
-Commodore components can be used to deploy monitoring tools, to change the state of lots of clusters at once, to perform backup operations, to modify network policies, and many other tasks that otherwise would have to be performed manually.
+Commodore Components can be used to deploy monitoring tools, to change the state of lots of clusters at once, to perform backup operations, to modify network policies, and many other tasks that otherwise would have to be performed manually.
 
-Creating Commodore components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures.
+Creating Commodore Components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures.
 
-If you create a new open source Commodore component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and who knows? Maybe even contribute back to your effort.
+If you create a new open source Commodore Component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and who knows? Maybe even contribute back to your effort.
