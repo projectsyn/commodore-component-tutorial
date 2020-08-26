@@ -1,10 +1,12 @@
 = Getting Started with Commodore Components
 
-This tutorial provides all the information required to create your first Commodore component.
+This tutorial provides all the information required to create your first Commodore component. https://syn.tools/tuto/index.html[This tutorial can be found] in the official Project Syn documentation.
 
 == Contents
 
-The contents of the tutorial are in the `tutorial.adoc` file. The scripts help encapsulate the knowledge required to spin up a Project Syn installation with at least 2 clusters.
+The contents of the tutorial are in the `docs/modules/ROOT/pages/index.adoc` file. The scripts help encapsulate the knowledge required to spin up a Project Syn installation with at least 2 clusters.
+
+The instructions of the tutorial guide the user to the creation and deployment of a simple component.
 
 == Requirements
 
@@ -12,4 +14,4 @@ The `0_requirements.sh` script shows the current versions of all required softwa
 
 == Build PDF
 
-Use the `make pdf` command to create a PDF file out of the source Asciidoc file. This requires Docker.
+Use the `make pdf` command to create a PDF file out of the source Asciidoc file in the `build` folder. This operation requires Docker.
