@@ -46,6 +46,7 @@ local labelSelector = {
       namespace: namespace
     },
     spec: {
+      replicas: 2,
       template: {
         spec: {
           containers: [

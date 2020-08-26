@@ -4,6 +4,8 @@ source lib/functions.sh
 source lib/minikube.sh
 
 check_minikube
+check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
+check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
 
 echo "===> Find Tenant ID"
 TENANT_ID=$(kubectl --context minikube -n lieutenant get tenant | grep t- | awk 'NR==1{print $1}')
@@ -21,6 +23,10 @@ echo "===> Removing everything"
 kubectl --context minikube -n lieutenant delete cluster "$K3S_CLUSTER_ID"
 kubectl --context minikube -n lieutenant delete cluster "$MINIKUBE_CLUSTER_ID"
 kubectl --context minikube -n lieutenant delete tenant "$TENANT_ID"
-minikube delete
-k3d cluster delete projectsyn
-killall ngrok
+
+echo "===> Waiting 20 seconds for the removal of GitLab repositories"
+sleep 20s
+
+# minikube delete
+# k3d cluster delete projectsyn
+# killall ngrok

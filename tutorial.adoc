@@ -19,7 +19,7 @@ Commodore Components allow you to customize and extend the number and variety of
 
 There are many https://github.com/topics/commodore-component[Commodore Components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift] clusters.
 
-WARNING: This tutorial has been prepared with version v0.2.0 of Commodore. Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
+This tutorial has been prepared with version v0.2.0 of Commodore. Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
 
 In this tutorial, we are going to do the following:
 
@@ -36,7 +36,7 @@ As for the required knowledge bits and pieces:
 * You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
 * You should have already followed the https://docs.syn.tools/syn/tutorials/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
 
-WARNING: This tutorial *was built and tested on a Linux system*; it should, however, be easily ported to macOS, since all tools referenced here are cross-platform.
+This tutorial *was built on a Linux system*, and tested in both Linux and macOS; it should, however, be easily ported to other https://en.wikipedia.org/wiki/Unix-like[Unices], since all tools referenced here are cross-platform.
 
 To follow this tutorial you will need quite an array of software in your system:
 
@@ -54,11 +54,11 @@ To follow this tutorial you will need quite an array of software in your system:
 
 This tutorial project contains a `0_requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
 
-IMPORTANT: The specified version numbers are the minimum required. Also, please make sure that both your GitLab and GitHub accounts must have SSH keys configured.
+The specified version numbers are the minimum required. Also, please make sure that *both your GitLab and GitHub accounts must have SSH keys configured.*
 
 == Preparations
 
-Make sure to follow these three steps *before* starting the tutorial:
+Follow these three steps *before* starting the tutorial:
 
 . Check all required tools by running the `./0_requirements.sh` script.
 . In GitHub, fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal account.
@@ -98,7 +98,7 @@ This script will launch a new Minikube instance, will apply all the required `ku
 
 It will also expose the Lieutenant API using the https://ngrok.com/[ngrok] reverse proxy tool.
 
-WARNING: You do not need a commercial (paying) ngrok account to use it; just https://ngrok.com/download[download] the version corresponding to your system and make sure it is accessible through your `PATH`.
+You do not need a commercial (paying) ngrok account to use it; just https://ngrok.com/download[download] the version corresponding to your system and install it somewhere in your `PATH`.
 
 Once the script has run, you will find two new private repositories in your GitLab account: one named `tutorial-cluster-minikube` and another named `tutorial-tenant`. Project Syn tools use these repositories to perform https://www.gitops.tech/["GitOps"] operations on all the clusters.
 
@@ -114,7 +114,7 @@ The second step in this tutorial is to bootstrap https://docs.syn.tools/commodor
 $ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
 ----
 
-IMPORTANT: Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
+Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
 
 === Install Steward on Minikube
 
@@ -158,7 +158,7 @@ t-muddy-sunset-5530   Tutorial Tenant   49m
 
 Of course, in your case the NAME column will show different, random values. But we can see both clusters and the tenant object, all happily residing inside the realm of our Project Syn installation.
 
-NOTE: For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
+For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
 
 ==== Inspecting the Lieutenant API traffic
 
@@ -169,9 +169,7 @@ image::ngrok_inspect.png[]
 
 === Synthesize Kind or Microk8s clusters
 
-IMPORTANT: This is an optional step!
-
-If you feel adventurous enough, and still have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
+This is an optional step! If you feel adventurous enough, and still have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
 
 == Creating a Commodore Component
 
@@ -244,7 +242,7 @@ $ commodore catalog compile c-solitary-voice-5640
 ...
 ----
 
-NOTE: We must repeat this operation for each cluster, and of course, you should use the cluster IDs you got from the last `kubectl` command above.
+We must repeat this operation for each cluster, and of course, you should use the cluster IDs you got from the last `kubectl` command above.
 
 === Creating a New Commodore Component
 
@@ -254,7 +252,7 @@ Let us create the component first:
 
 [source,bash]
 ----
-$ Commodore Component new fortune
+$ commodore component new fortune
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
@@ -326,7 +324,7 @@ Now that we have written our component, let's compile it to see if it's generati
 
 [source,bash]
 ----
-$ Commodore Component compile dependencies/fortune
+$ commodore component compile dependencies/fortune
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
@@ -411,7 +409,7 @@ $ git push
 $ cd ../../../
 ----
 
-NOTE: Since we edited the `common.yml` file, the changes will propagate to all clusters.
+Since we edited the `common.yml` file, the changes will propagate to all clusters. If you want your changes to apply to just one cluster, edit the corresponding file in the same folder.
 
 === Deployment
 
@@ -425,7 +423,7 @@ c-aged-cloud-4988       Kind cluster       t-weathered-fire-7929   3m58s
 c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s
 c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m
 
-$ commodore catalog compile c-solitary-voice-5640
+$ commodore catalog compile --push c-solitary-voice-5640
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
@@ -457,13 +455,13 @@ We have to do this for all clusters!
 
 [source,bash]
 ----
-$ commodore catalog compile c-aged-cloud-4988
+$ commodore catalog compile --push c-aged-cloud-4988
 Agent pid 9
 Enter passphrase for /app/.ssh/id_rsa:
 Identity added: /app/.ssh/id_rsa (user@domain.com)
 ...
 
-$ commodore catalog compile c-late-cloud-248
+$ commodore catalog compile --push c-late-cloud-248
 ...
 
 ----
@@ -534,7 +532,7 @@ We are done! You can now remove the clusters in your computer, and also remove t
 * Run the `./5_delete.sh` script to deregister and stop all local clusters.
 * Remove your clone of `commodore-defaults` on GitHub.
 
-TIP: The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s` have been automatically deleted by the Lieutenant Operator.
+The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s` have been automatically deleted by the Lieutenant Operator.
 
 [source,bash]
 ----
@@ -569,6 +567,6 @@ I hope this tutorial has given you a good idea of what Commodore Components are,
 
 Commodore Components can be used to deploy monitoring tools, to change the state of lots of clusters at once, to perform backup operations, to modify network policies, and many other tasks that otherwise would have to be performed manually.
 
-Creating Commodore Components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures.
+Creating Commodore Components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures. As a next step, we recommend that you read the https://openshift.docs.vshn.ch/oc4/references/projectsyn/developer.html[Commodore Component Developer Guidelines].
 
 If you create a new open source Commodore Component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and who knows? Maybe even contribute back to your effort.
