@@ -87,9 +87,7 @@ include::{examplesdir}1_lieutenant_on_minikube.sh[tag=demo]
 
 This script will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
 
-It will also expose the Lieutenant API using the https://ngrok.com/[ngrok] reverse proxy tool.
-
-You do not need a commercial (paying) ngrok account to use it; just https://ngrok.com/download[download] the version corresponding to your system and install it somewhere in your `PATH`.
+It will also expose the Lieutenant API using the https://ngrok.com/[ngrok] reverse proxy tool. You do not need a commercial (paying) ngrok account to use it; just https://ngrok.com/download[download] the version corresponding to your system and install it somewhere in your `PATH`.
 
 Once the script has run, you will find two new private repositories in your GitLab account: one named `tutorial-cluster-minikube` and another named `tutorial-tenant`. Project Syn tools use these repositories to perform https://www.gitops.tech/["GitOps"] operations on all the clusters.
 
