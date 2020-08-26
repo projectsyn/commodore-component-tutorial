@@ -1,5 +1,2 @@
 .Tutorial
 * xref:index.adoc[Home]
-
-.Project Syn
-include::syn:ROOT:nav.adoc[]
