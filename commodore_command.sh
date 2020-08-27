@@ -16,3 +16,10 @@ commodore () {
     projectsyn/commodore:v0.2.0 \
     $*
 }
+
+commodore_compile_all() {
+    CLUSTERS=($(kubectl --context minikube -n lieutenant get cluster -o jsonpath="{$.items[*].metadata.name}"))
+    for CLUSTER in "${CLUSTERS[@]}"; do
+        commodore catalog compile --push "$CLUSTER"
+    done
+}
