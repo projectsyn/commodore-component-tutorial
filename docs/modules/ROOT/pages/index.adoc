@@ -483,7 +483,7 @@ Second, redirect traffic to Argo CD:
 
 [source,bash]
 ----
-$ kubectl --context minikube -n syn port-forward svc/Argo CD-server 8080:80
+$ kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80
 ----
 
 And third, open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
