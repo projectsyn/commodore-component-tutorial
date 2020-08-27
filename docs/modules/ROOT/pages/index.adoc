@@ -527,18 +527,14 @@ The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutoria
 [source,bash]
 ----
 $ ./5_delete.sh
-Switched to context "minikube".
-===> Minikube running
 ===> Find Tenant ID
 ===> OK: TENANT_ID variable set
-===> Find Minikube Cluster ID
-===> OK: MINIKUBE_CLUSTER_ID variable set
-===> Find K3s Cluster ID
-===> OK: K3S_CLUSTER_ID variable set
-===> Removing everything
+===> Removing all clusters
 cluster.syn.tools "c-aged-sea-7813" deleted
 cluster.syn.tools "c-snowy-sunset-5873" deleted
+===> Removing tenant
 tenant.syn.tools "t-solitary-field-4017" deleted
+===> Waiting 20 seconds for the removal of GitLab repositories 
 🔥  Deleting "minikube" in docker ...
 🔥  Deleting container "minikube" ...
 🔥  Removing /home/username/.minikube/machines/minikube ...
