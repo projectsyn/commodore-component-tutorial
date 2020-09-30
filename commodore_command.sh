@@ -11,7 +11,7 @@ commodore () {
     --volume "${HOME}/.gitconfig:/app/.gitconfig:ro" \
     --volume "${PWD}:/app/data/" \
     --workdir "/app/data" \
-    projectsyn/commodore:v0.2.0 \
+    projectsyn/commodore:v0.3.0 \
     $*
 }
 
