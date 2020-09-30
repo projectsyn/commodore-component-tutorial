@@ -7,8 +7,8 @@ commodore () {
     --tty \
     --rm \
     --user="$(id -u)" \
-    --volume "$HOME"/.ssh:/app/.ssh:ro \
-    --volume ~/.gitconfig:/app/.gitconfig:ro \
+    --volume "${HOME}/.ssh:/app/.ssh:ro" \
+    --volume "${HOME}/.gitconfig:/app/.gitconfig:ro" \
     --volume "${PWD}:/app/data/" \
     --workdir "/app/data" \
     projectsyn/commodore:v0.2.0 \
