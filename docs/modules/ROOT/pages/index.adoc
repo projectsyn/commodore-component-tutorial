@@ -279,7 +279,7 @@ The Jsonnet extension for Visual Studio Code requires some values in your `setti
 ]
 ----
 
-The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command.
+The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command (run `poetry install` first if you have not done it yet).
 
 [TIP]
 .Creating Jsonnet files from YAML
