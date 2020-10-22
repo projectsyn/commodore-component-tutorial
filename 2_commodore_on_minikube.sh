@@ -32,7 +32,7 @@ LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret $(kubectl
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"
 kubectl -n lieutenant run commodore-shell \
-  --image=docker.io/projectsyn/commodore:v0.2.0 \
+  --image=docker.io/projectsyn/commodore:v0.3.0 \
   --env=COMMODORE_API_URL="$LIEUTENANT_URL" \
   --env=COMMODORE_API_TOKEN="$LIEUTENANT_TOKEN" \
   --env=COMMODORE_GLOBAL_GIT_BASE="https://github.com/$GITHUB_USERNAME" \
