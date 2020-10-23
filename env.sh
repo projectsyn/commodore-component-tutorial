@@ -34,4 +34,3 @@ case "${OPTION}" in
         echo "K3S_CLUSTER_ID: $K3S_CLUSTER_ID"
         ;;
 esac
-

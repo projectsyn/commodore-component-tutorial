@@ -37,6 +37,7 @@ To follow this tutorial you will need quite an array of software in your system:
 * https://k3d.io/[K3d] version 3.0
 * A https://about.gitlab.com/[GitLab] account with your https://gitlab.com/profile/keys[SSH key configured]. You can use a private GitLab instance, if you have one nearby.
 * A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
+* SSH-agent running with your SSH key added.
 * The following commands must be installed and available in your path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], `ssh-keyscan`, and `base64`.
 ** Although not required by this tutorial, you could also install https://github.com/mikefarah/yq[yq] and https://k9scli.io/[k9s], both very useful when working with Commodore Components.
 * We will be editing files with https://code.visualstudio.com/[Visual Studio Code] together with the following extensions:
@@ -167,20 +168,7 @@ Now we're getting to the actual subject of this tutorial! Let us dive into the r
 
 === Using the Commodore Docker Image
 
-We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make using `commodore` a much simpler task:
-
-[source,bash]
-----
-$ which commodore
-commodore not found
-
-$ source ./commodore_command.sh
-
-$ which commodore
-commodore () {
-	docker run --env-file=.env --interactive=true --tty --rm --user="$(id -u)" --volume "$HOME"/.ssh:/app/.ssh:ro --volume "$PWD"/compiled/:/app/compiled/ --volume "$PWD"/catalog/:/app/catalog --volume "$PWD"/dependencies/:/app/dependencies/ --volume "$PWD"/inventory/:/app/inventory/ --volume ~/.gitconfig:/app/.gitconfig:ro projectsyn/commodore:v0.2.0 "$*"
-}
-----
+We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make using `commodore` a much simpler task. See https://docs.syn.tools/commodore/running-commodore.html[Running Commodore].
 
 === Checking out the Commodore Project
 
@@ -291,7 +279,7 @@ The Jsonnet extension for Visual Studio Code requires some values in your `setti
 ]
 ----
 
-The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command.
+The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command (run `poetry install` first if you have not done it yet).
 
 [TIP]
 .Creating Jsonnet files from YAML
@@ -534,7 +522,7 @@ cluster.syn.tools "c-aged-sea-7813" deleted
 cluster.syn.tools "c-snowy-sunset-5873" deleted
 ===> Removing tenant
 tenant.syn.tools "t-solitary-field-4017" deleted
-===> Waiting 20 seconds for the removal of GitLab repositories 
+===> Waiting 20 seconds for the removal of GitLab repositories
 🔥  Deleting "minikube" in docker ...
 🔥  Deleting container "minikube" ...
 🔥  Removing /home/username/.minikube/machines/minikube ...
