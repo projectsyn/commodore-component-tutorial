@@ -13,3 +13,4 @@
 :examplesdir: /documents/docs/modules/ROOT/examples/
 
 include::docs/modules/ROOT/pages/index.adoc[]
+include::docs/modules/ROOT/pages/testing.adoc[]

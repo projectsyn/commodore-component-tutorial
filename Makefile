@@ -10,6 +10,7 @@ all: pdf
 
 pdf: build/tutorial.pdf
 
+.PHONY: build/tutorial.pdf
 build/tutorial.pdf: tutorial.adoc
 	$(asciidoctor_pdf_cmd) $(asciidoctor_opts) $<
 

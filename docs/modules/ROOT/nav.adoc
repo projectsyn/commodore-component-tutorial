@@ -1,2 +1,3 @@
 .Tutorial
 * xref:index.adoc[Home]
+* xref:testing.adoc[Tests]
