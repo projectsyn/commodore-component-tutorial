@@ -6,17 +6,20 @@ docker_opts ?= --rm --tty --user "$$(id -u)"
 asciidoctor_pdf_cmd  ?= $(docker_cmd) run $(docker_opts) --volume "$${PWD}":/documents/ vshn/asciidoctor-pdf:1.4
 asciidoctor_opts ?= --destination-dir=$(out_dir)
 
+.PHONY: all
 all: pdf
 
+.PHONY: pdf
 pdf: build/tutorial.pdf
 
-.PHONY: build/tutorial.pdf
 build/tutorial.pdf: tutorial.adoc
 	$(asciidoctor_pdf_cmd) $(asciidoctor_opts) $<
 
+.PHONY: clean
 clean:
 	rm -rf build
 
+.PHONY: setup
 setup:
 	./0_requirements.sh; \
 	./1_lieutenant_on_minikube.sh; \
