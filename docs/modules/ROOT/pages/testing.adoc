@@ -1,0 +1,216 @@
+= Tutorial: Writing Commodore Component Tests
+
+This tutorial covers the topic of writing tests for your new or existing Commodore Component.
+It assumes that you are familiar with writing Commodore Components.
+If not, see link:index.adoc[Writing your First Commodore Component].
+
+Currently, we can test components with two approaches:
+
+. Unit tests with Go.
+  Easy to understand and write if you are already a Go developer.
+. Policy tests with Conftest.
+  Uses the https://www.openpolicyagent.org/docs/latest/policy-language/[Rego] syntax from https://www.openpolicyagent.org/[OpenPolicyAgent].
+
+It is up to you to decide which test framework you want to use.
+Some tests are simpler to do in Go, some are simpler in Rego.
+A combination of both will combine their advantages.
+
+NOTE: The policy tests run with the Conftest tool, but for the purpose of this tutorial we will refer to the Rego language, as the policies are written in that syntax.
+
+== Requirements
+
+NOTE: This tutorial *was written on a Linux system*.
+
+. `Go` version 1.15, developer environment with Go modules enabled.
+. `docker` version 19
+
+== Setting up test infrastructure with Go
+
+We'll start with Go.
+Create the following directory structure:
+[source,console]
+----
+.
+├── tests
+│   ├── test.yml
+│   └── unit
+│       ├── defaults_test.go
+│       ├── go.mod
+│       └── go.sum
+----
+The `go.mod` and `go.sum` files are created when executing `go mod init` inside `test/unit/`.
+Since we are only creating test code and not an actual Go binary, all Go test files have to end with `_test.go`.
+`tests/test.yml` is sometimes used by components to override values that would only be needed by Commodore when compiling whole catalogs, you can leave it empty for now.
+We will now start writing the first tests in `defaults_test.go`.
+
+== Writing unit tests with Go
+
+If you are already a Go developer, these should look fairly familiar to you.
+We will showcase the tests with the Espejo component.
+If you have `component-somename`, then leave out `component-`.
+
+[source,go]
+----
+package main
+
+import (
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"testing"
+)
+
+var (
+	testPath = "../../compiled/espejo/espejo"
+)
+
+func Test_Deployment_DefaultParameters(t *testing.T) {
+
+	subject := DecodeDeployment(t, testPath+"/10_deployment.yaml")
+  require.NotEmpty(t, subject.Spec.Template.Spec.Containers)
+	container := subject.Spec.Template.Spec.Containers[0]
+
+	assert.Equal(t, "espejo", container.Name)
+	assert.Contains(t, container.Args, "--verbose=false")
+	assert.Contains(t, container.Args, "--reconcile-interval=10m")
+	assert.Contains(t, container.Args, "--metrics-addr=:8080")
+	assert.Contains(t, container.Args, "--enable-leader-election=true")
+
+  require.NotEmpty(t, container.Env)
+	env := container.Env[0]
+	assert.Equal(t, "WATCH_NAMESPACE", env.Name)
+	assert.Equal(t, "metadata.namespace", env.ValueFrom.FieldRef.FieldPath)
+}
+
+func Test_Namespace(t *testing.T) {
+
+	subject := DecodeNamespace(t, testPath+"/01_namespace.yaml")
+
+	assert.Equal(t, "syn-espejo", subject.Name)
+	assert.Contains(t, subject.Labels, "name")
+}
+
+----
+
+CAUTION: We have not yet built a library to host the boilerplate code and common functions.
+
+As you can see, it's pretty straight forward:
+
+. First, load the pre-compiled YAML file into a Go K8s struct that we all know and love
+. Then, we verify if the values were parsed correctly, using any assertion library of your choice.
+
+To actually run our unit test case, we need to run a Commodore Component compilation first:
+[source,bash]
+----
+COMPONENT_NAME=$(basename ${PWD} | sed s/component-//)
+DOCKER_CMD() {docker run --rm --user "$(id -u)" -v "${PWD}:/${COMPONENT_NAME}" --workdir /${COMPONENT_NAME} $*}
+DOCKER_CMD --entrypoint /usr/local/bin/jb projectsyn/commodore:latest install
+DOCKER_CMD projectsyn/commodore:latest component compile . -f tests/test.yml
+----
+
+Running the tests could look like this:
+[source,bash]
+----
+$ pushd tests/unit > /dev/null && go test -v ./... && popd > /dev/null
+=== RUN   Test_Deployment_DefaultParameters
+--- PASS: Test_Deployment_DefaultParameters (0.01s)
+=== RUN   Test_Namespace
+--- PASS: Test_Namespace (0.00s)
+PASS
+ok  	github.com/projectsyn/component-espejo
+----
+
+== Writing policy tests with Rego
+
+Some tests are easier to write in Rego than Go unit tests.
+Consider the following use case:
+We want to ensure that all generated manifests have a certain label.
+
+With Go unit tests, we would have to
+
+. Recursively parse all YAML files
+. Decode the YAML files into generic objects, so that we can access `.metadata.labels`
+. Assert that the desired label is there.
+
+With Rego, this particular test is relatively easy:
+[source,rego]
+----
+recommended_labels {
+  input.metadata.labels["app.kubernetes.io/managed-by"]
+}
+
+warn_labels[msg] {
+  input.kind != "CustomResourceDefinition"
+  not recommended_labels
+
+  msg = sprintf("%s/%s has not recommended labels", [input.kind, name])
+}
+----
+
+Let's break down the structure:
+
+. `recommended_labels` is an object that verifies that `.metadata.labels` contain the desired label keys.
+. `warn_labels[msg]` is a Rule.
+  If all expressions in the brackets match (including `msg`), this Rule is considered `true`.
+. Since the prefix of the rule is `warn_`, it will only print a Warning message if there is an object that matches the rule.
+  With `deny_`, it would fail the test.
+
+IMPORTANT: Rego (like Datalog and its ancestor Prolog) is declarative.
+The lines within a rule are not evaluated imperatively.
+It is important to keep that in mind when writing rules, as it can cause many headaches.
+
+Let's translate the example to English:
+
+. In `recommended_labels`, we will test whether the Kubernetes object (named `input`) contains "app.kubernetes.io/managed-by" in the `.metadata.labels` dictionary.
+  We ignore the actual value here.
+  Since `recommended_labels` is not a rule, it's not yet used.
+. When conftest matches an Object against the rule `warn_labels`, all expressions in the rule have to evaluate `True`.
+. If we pass a CRD, the result of the rule is `False` because of `input.kind != "CustomResourceDefinition"`, thus the rule does not match, and the test passes.
+. If we pass a `Deployment`, we have at least `input.kind != "CustomResourceDefinition"` that equals to `True`, but remember, all expressions have to be evaluated.
+. The other expression, `not recommended_labels` checks if the object is missing the desired labels.
+  If the given Deployment has the labels, it will fail the rule and pass the test.
+  A Deployment that doesn't have the labels would match the rule, and thus fail the test.
+. By now the rule would already match with a Deployment without the labels, and thus fail the test, but we want to give a reason why.
+  As the final expression, we will assign the `msg` variable a human readable message why the rule matches.
+  Remember, this line can also be the first one since the execution order is determined by Rego and not line by line.
+
+If we now also pass a `Namespace` or `Service` objects, the same rules can be applied, since all these objects share the common property `.metadata.labels`.
+
+
+If we want to check whether a Namespace has the correct name, this could look like this:
+[source, rego]
+----
+deny_namespace[msg] {
+  input.kind = "Namespace"
+  ns := "syn-espejo"
+  not input.metadata.name = ns
+
+  msg = sprintf("Namespace is not %s", [ns])
+}
+----
+In this example, we are using the variable `ns` to not repeat ourselves.
+The expression `not input.metadata.name = "syn-espejo"` is equivalent, but we want to reduce code duplication in the `msg` expression.
+
+Running the policies could look like this:
+[source,bash]
+----
+$ DOCKER_CMD --volume "${PWD}/tests/policies:/policy" openpolicyagent/conftest:latest test --policy /policy $(find . -type f -wholename "./compiled/${COMPONENT_NAME}/*.yaml")
+WARN - ./compiled/espejo/espejo/05_rbac.yaml - ClusterRole/syn-espejo has not recommended labels
+WARN - ./compiled/espejo/espejo/05_rbac.yaml - ServiceAccount/espejo has not recommended labels
+WARN - ./compiled/espejo/espejo/05_rbac.yaml - ClusterRoleBinding/syn-espejo has not recommended labels
+WARN - ./compiled/espejo/espejo/01_namespace.yaml - Namespace/syn-espejo has not recommended labels
+
+14 tests, 10 passed, 4 warnings, 0 failures, 0 exceptions
+----
+
+== Run all tests
+
+You could declare all the test commands in the `Makefile`.
+Have a look at https://github.com/projectsyn/component-espejo/blob/master/Makefile[Component-Espejo] for an example.
+This should also help running tests in any CI/CD pipelines, such as GitHub Actions.
+
+== Conclusion
+
+I hope this guide has shown how we can test our component without having to compile a whole catalog and applying it to a cluster.
+
+At the moment, we are limited to only have tests against a single compilation (e.g. the default parameters).
+Later on, we want to enable testing different parameter sets.
