@@ -15,20 +15,25 @@ echo "===> Creating namespace"
 kubectl create namespace lieutenant
 
 echo "===> CRDs (global scope)"
-kubectl apply -k github.com/projectsyn/lieutenant-operator/deploy/crds
+kubectl apply -k "github.com/projectsyn/lieutenant-operator/deploy/crds?ref=v0.4.2"
 
 echo "===> Operator deployment"
-kubectl -n lieutenant apply -k github.com/projectsyn/lieutenant-operator/deploy
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-operator/deploy?ref=v0.4.2"
 
 echo "===> Operator configuration"
 kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-operator \
-    SKIP_VAULT_SETUP=true \
     DEFAULT_DELETION_POLICY=Delete \
-    LIEUTENANT_DELETE_PROTECTION=false
+    DEFAULT_GLOBAL_GIT_REPO_URL=https://github.com/projectsyn/getting-started-commodore-defaults \
+    LIEUTENANT_DELETE_PROTECTION=false \
+    SKIP_VAULT_SETUP=true
 
 # tag::demo[]
 echo "===> API deployment"
-kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.2.0"
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.4.0"
+
+echo "===> API configuration"
+kubectl -n lieutenant set env deployment/lieutenant-api -c lieutenant-api \
+    DEFAULT_API_SECRET_REF_NAME=gitlab-com
 
 echo "===> For Minikube we must delete the default service and re-create it"
 kubectl -n lieutenant delete svc lieutenant-api
