@@ -158,9 +158,11 @@ Since we're using `ngrok` to expose our Lieutenant API we can inspect all the re
 .Lieutenant API session inspected through ngrok
 image::ngrok_inspect.png[]
 
-=== Synthesize Kind or Microk8s clusters
+=== Synthesize Kind, Microk8s, or other Kubernetes clusters
 
 This is an optional step! If you feel adventurous enough, and still have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
+
+You can also synthesize a generic, pre-existing cluster using the `./4_synthesize_on_k8s.sh` script. This requires a file named `demo.kubeconfig` to be present, with the required accesses for `kubectl` (or you can edit the script and reference your context instead.)
 
 == Creating a Commodore Component
 
