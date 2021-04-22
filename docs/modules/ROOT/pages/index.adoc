@@ -54,7 +54,7 @@ Follow these three steps *before* starting the tutorial:
 
 . Clone the repository of the tutorial: `git clone git@github.com:projectsyn/commodore-component-tutorial.git` and `cd commodore-component-tutorial`.
 . Check all required tools by running the `./0_requirements.sh` script.
-. In GitHub, fork the https://github.com/projectsyn/commodore-defaults[commodore-defaults] project to your own personal account.
+. In GitHub, fork the https://github.com/projectsyn/getting-started-commodore-defaults[getting-started-commodore-defaults] project to your own personal account.
 . And in GitLab, create a https://gitlab.com/profile/personal_access_tokens[Personal Access Token] with API access.
 
 CAUTION: Remember to save your token somewhere, since it will only be visible once!
@@ -347,7 +347,7 @@ We need to edit two files for that:
 $ cd inventory/classes/global
 ----
 
-The `global` folder is a clone of the fork of the `commodore-defaults` project.
+The `global` folder is a clone of the fork of the `getting-started-commodore-defaults` project.
 
 Edit `commodore.yml` and add this at the end:
 
@@ -506,7 +506,7 @@ $ curl $(minikube service fortune-service --namespace syn-fortune --url)
 We are done! You can now remove the clusters in your computer, and also remove the projects you've created in GitHub and GitLab:
 
 * Run the `./5_delete.sh` script to deregister and stop all local clusters.
-* Remove your clone of `commodore-defaults` on GitHub.
+* Remove your clone of `getting-started-commodore-defaults` on GitHub.
 
 The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s` have been automatically deleted by the Lieutenant Operator.
 
