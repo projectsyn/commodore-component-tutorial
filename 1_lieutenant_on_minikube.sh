@@ -84,7 +84,7 @@ kubectl -n lieutenant get tenant
 kubectl -n lieutenant get gitrepo
 
 echo "===> Register a Lieutenant Cluster via the API"
-CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Minikube cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"minikube\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-minikube.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
+CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Minikube cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-minikube.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
 echo "Cluster ID: $CLUSTER_ID"
 
 echo "===> Retrieve the registered Clusters via API and directly on the cluster"
