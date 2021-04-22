@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+COMMODORE_VERSION="v0.6.0"
+
 commodore() {
   docker run \
     --interactive=true \

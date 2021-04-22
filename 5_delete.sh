@@ -21,5 +21,7 @@ sleep 20s
 
 minikube delete
 k3d cluster delete projectsyn
-kind delete cluster --name projectsyn
+# kind delete cluster --name projectsyn
+# sudo microk8s reset
+# sudo microk8s stop
 killall ngrok
