@@ -22,10 +22,9 @@ check_variable "CLUSTER_ID" $CLUSTER_ID
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"
 kubectl --context minikube -n lieutenant run commodore-shell \
-  --image=docker.io/projectsyn/commodore:v0.3.0 \
+  --image=docker.io/projectsyn/commodore:v0.5.0 \
   --env=COMMODORE_API_URL="$LIEUTENANT_URL" \
   --env=COMMODORE_API_TOKEN="$LIEUTENANT_TOKEN" \
-  --env=COMMODORE_GLOBAL_GIT_BASE="https://github.com/$GITHUB_USERNAME" \
   --env=SSH_PRIVATE_KEY="$(cat ${COMMODORE_SSH_PRIVATE_KEY})" \
   --env=CLUSTER_ID="$CLUSTER_ID" \
   --env=GITLAB_ENDPOINT="$GITLAB_ENDPOINT" \
