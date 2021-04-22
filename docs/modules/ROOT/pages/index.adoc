@@ -168,7 +168,18 @@ Now we're getting to the actual subject of this tutorial! Let us dive into the r
 
 === Using the Commodore Docker Image
 
-We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub]. This is why it is strongly recommended that you define the following function in your environment, which will make using `commodore` a much simpler task. See https://docs.syn.tools/commodore/running-commodore.html[Running Commodore].
+We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub].
+
+This is why it is strongly recommended that you define an ad-hoc shortcut, as explained in the https://docs.syn.tools/commodore/running-commodore.html["Running Commodore"] page, which will make using `commodore` a much simpler task. That page contains information relevant for Linux and macOS users.
+
+But for this tutorial, you can simply run the following command to get the job done:
+
+[source,bash]
+----
+$ source commodore_command.sh
+----
+
+Upon completion, you will have the `commodore`, `commodore_compile_all`, and `commodore_push_all` commands ready to use.
 
 === Checking out the Commodore Project
 
@@ -179,21 +190,6 @@ In order to create a new component, we need to clone the official Commodore proj
 $ git clone git@github.com:projectsyn/commodore.git
 $ cd commodore
 $ mkdir -p catalog inventory dependencies compiled
-----
-
-We also need to define the contents of the `.env` file, used by Docker to set environment variables required by the `commodore` command. We can do this in a snap with this command, which should display an output similar to this one:
-
-[source,bash]
-----
-$ source ../env.sh -docker > .env
-
-$ cat .env
-# URL of Lieutenant API
-COMMODORE_API_URL=http://lieutenant.172.17.0.3.nip.io:32506
-# Lieutenant API token
-COMMODORE_API_TOKEN=………
-# Base URL for global Git repositories
-COMMODORE_GLOBAL_GIT_BASE=ssh://git@github.com/$GITHUB_USERNAME
 ----
 
 === Compiling the Commodore Catalog
@@ -221,6 +217,8 @@ $ commodore catalog compile c-solitary-voice-5640
 ----
 
 We must repeat this operation for each cluster, and of course, you should use the cluster IDs you got from the last `kubectl` command above.
+
+TIP: You can use the `commodore_compile_all` command instead!
 
 === Creating a New Commodore Component
 
