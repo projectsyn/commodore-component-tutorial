@@ -9,15 +9,6 @@ check_variable "GITHUB_USERNAME" $GITHUB_USERNAME
 
 check_minikube
 
-echo "===> Find getting-started-commodore-defaults repository fork on GitHub"
-GITHUB_COMMODORE_URL=https://github.com/$GITHUB_USERNAME/getting-started-commodore-defaults
-GITHUB_COMMODORE_DEFAULTS=$(curl $GITHUB_COMMODORE_URL --head --silent | grep "HTTP/2 200")
-if [ -z "$GITHUB_COMMODORE_DEFAULTS" ]; then
-  echo "===> ERROR: You must fork the https://github.com/projectsyn/getting-started-commodore-defaults before running this script"
-  exit 1
-fi
-echo "===> OK: commodore defaults forked: $GITHUB_COMMODORE_DEFAULTS"
-
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
 check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
