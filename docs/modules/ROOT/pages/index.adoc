@@ -314,30 +314,11 @@ $ cd ../../
 
 Now that we have a component that compiles, and that we have pushed it to GitHub, we want to deploy it to our clusters.
 
-We need to edit two files for that:
+We only need edit one file for that:
 
 [source,bash]
 ----
-$ cd inventory/classes/global
-----
-
-The `global` folder is a clone of the fork of the `getting-started-commodore-defaults` project.
-
-Edit `commodore.yml` and add this at the end:
-
-[source,bash]
-----
-- name: fortune
-  url: https://github.com/[YOUR_GITHUB_USERNAME]/component-fortune.git
-----
-
-Commit and push your changes, and `cd` to another folder:
-
-[source,bash]
-----
-$ git commit -a -m "Added component"
-$ git push
-$ cd ../[$TENANT_ID]
+$ cd inventory/classes/$TENANT_ID
 ----
 
 This repository is a clone of the `tutorial-tenant` project in your GitLab account.
@@ -346,11 +327,16 @@ Edit `/common.yml` and add this text:
 
 [source,bash]
 ----
-classes:
-- components.fortune
+parameters:
+  components:
+    fortune:
+      url: https://github.com/akosma/component-fortune.git
+      version: master
+applications:
+  - fortune
 ----
 
-And once again, commit and push your changes.
+And once again, commit and push your changes to the tenant GitLab repository:
 
 [source,bash]
 ----
@@ -374,22 +360,8 @@ c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s
 c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m
 
 $ commodore catalog compile --push c-solitary-voice-5640
-Agent pid 9
-Enter passphrase for /app/.ssh/id_rsa:
-Identity added: /app/.ssh/id_rsa (user@domain.com)
-Cleaning working tree
-Updating global config...
-Updating customer config...
-Discovering components...
-Fetching components...
-Updating Kapitan target...
-Updating cluster catalog...
-Updating Jsonnet libraries...
-Cleaning catalog repository...
-Updating Kapitan secret references...
-Compiling catalog...
+# … lots of text…
 Postprocessing...
-   > compiled/cluster/metrics-server/01_helmchart/metrics-server/templates/00_namespace.yaml does not exist, creating...
 Updating catalog repository...
  > Changes:
      Added file manifests/apps/fortune.yaml
@@ -406,14 +378,10 @@ We have to do this for all clusters!
 [source,bash]
 ----
 $ commodore catalog compile --push c-aged-cloud-4988
-Agent pid 9
-Enter passphrase for /app/.ssh/id_rsa:
-Identity added: /app/.ssh/id_rsa (user@domain.com)
 ...
 
 $ commodore catalog compile --push c-late-cloud-248
 ...
-
 ----
 
 Since Argo CD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
@@ -443,7 +411,7 @@ Second, redirect traffic to Argo CD:
 
 [source,bash]
 ----
-$ kubectl --context minikube -n syn port-forward svc/argocd-server 8080:80
+$ kubectl --context minikube -n syn port-forward deploy/argocd-server 8080:8080
 ----
 
 And third, open http://localhost:8080 with the username `admin` and the password you copied in the previous step.
