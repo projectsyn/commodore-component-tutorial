@@ -41,7 +41,7 @@ To follow this tutorial you will need quite an array of software in your system:
 * The following commands must be installed and available in your path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], `ssh-keyscan`, and `base64`.
 ** Although not required by this tutorial, you could also install https://github.com/mikefarah/yq[yq] and https://k9scli.io/[k9s], both very useful when working with Commodore Components.
 * We will be editing files with https://code.visualstudio.com/[Visual Studio Code] together with the following extensions:
-** https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet]
+** https://marketplace.visualstudio.com/items?itemName=liamdawson.jsonnet-language[liamdawson.jsonnet-language]
 ** https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension]
 
 This tutorial project contains a `0_requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
@@ -229,11 +229,7 @@ Let us create the component first:
 [source,bash]
 ----
 $ commodore component new fortune
-Agent pid 9
-Enter passphrase for /app/.ssh/id_rsa:
-Identity added: /app/.ssh/id_rsa (user@domain.com)
 Adding component fortune...
- > Installing component
 Component fortune successfully added 🎉
 ----
 
@@ -258,27 +254,6 @@ include::{examplesdir}main.jsonnet[]
 
 This Jsonnet file provides the definition of a complete Kubernetes deployment. However, instead of being specified in YAML, this file specifies it in Jsonnet format. After the `import` statements we define a few variables. The entries that follow define various Kubernetes objects: a deployment, a service, and a namespace to hold everything together.
 
-The https://github.com/hanseltime/vscode-jsonnet[vscode-jsonnet] extension for Visual Studio Code has a nifty "live preview" feature; the picture below shows how Jsonnet outputs the classic "YAML" format that any Kubernetes cluster might expect.
-
-.Previewing the Jsonnet compilation
-image::vscode_02.png[]
-
-==== Configuring the Jsonnet Preview Pane in Visual Studio Code
-
-The Jsonnet extension for Visual Studio Code requires some values in your `settings.json` in order for the preview pane to work properly:
-
-[source,json]
-----
-"jsonnet.executablePath": "/home/username/.local/bin/jsonnet",
-"jsonnet.libPaths": [
-    "/home/username/commodore/commodore/",
-    "/home/username/commodore/dependencies/",
-    "/home/username/.cache/pypoetry/virtualenvs/commodore-jtwx3-r8-py3.7/lib/python3.7/site-packages/kapitan"
-]
-----
-
-The value of the third entry of the `jsonnet.libPaths` property can be found using the `poetry env info` command (run `poetry install` first if you have not done it yet).
-
 [TIP]
 .Creating Jsonnet files from YAML
 ====
@@ -301,24 +276,23 @@ Now that we have written our component, let's compile it to see if it's generati
 [source,bash]
 ----
 $ commodore component compile dependencies/fortune
-Agent pid 9
-Enter passphrase for /app/.ssh/id_rsa:
-Identity added: /app/.ssh/id_rsa (user@domain.com)
 Compile component fortune...
-Updating Jsonnet libraries...
+GET https://github.com/bitnami-labs/kube-libsonnet/archive/28743043c44c1f5cd69688c202e72d5f677ad02f.tar.gz 200
 Compiling catalog...
- > Component compiled to /app/compiled/test
+Compiled fortune (0.07s)
+ > Component compiled to /app/data/compiled/fortune
+Postprocessing...
 
-$ ls compiled/test/fortune
+$ ls compiled/fortune/fortune
 .  ..  deployment.yaml  namespace.yaml  service.yaml
 
-$ cat compiled/test/fortune/namespace.yaml
+$ cat compiled/fortune/fortune/namespace.yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    name: syn-tutorial
-  name: syn-tutorial
+    name: syn-fortune
+  name: syn-fortune
 ----
 
 Our component compiles! Let us create a new project in GitHub to push our code into:
