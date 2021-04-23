@@ -118,14 +118,7 @@ We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh`
 
 Now it is time to spin our second cluster, this time using K3s, itself managed using https://k3d.io/[K3d]. Again, a couple of scripts will make our life easier.
 
-First we need to get some variables from our environment:
-
-[source,bash]
-----
-$ source ./env.sh
-----
-
-Now we can run a script that will not only spin a new k3s cluster, but will also install Steward and register it as a cluster belonging to our tenant. That is, we will "synthesize" our cluster.
+Let's run a script that will not only spin a new k3s cluster, but will also install Steward and register it as a cluster belonging to our tenant. That is, we will create and "synthesize" our cluster in one operation.
 
 TIP: The term "synthesize" means performing all the required steps so that a cluster can be managed as part of a Project Syn metacluster.
 
