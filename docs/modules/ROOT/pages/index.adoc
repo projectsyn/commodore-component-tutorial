@@ -8,13 +8,21 @@ This tutorial will guide you through the required steps to create your first Com
 
 Commodore Components allow you to customize and extend the number and variety of tasks that you can perform with https://syn.tools/[Project Syn]. Using Commodore Components, you can customize and apply changes to all of your clusters, ensuring conformity, coherence, alignment, and drastically reducing the workload for DevOps engineers.
 
-There are many https://github.com/topics/commodore-component[Commodore Components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift] clusters.
+There are many https://github.com/topics/commodore-component[Commodore Components] already published; they perform various tasks, all related to the maintenance of Kubernetes clusters of many different kinds, including https://www.openshift.com/[OpenShift], https://minikube.sigs.k8s.io/docs/[Minikube], https://rancher.com/products/rancher/[Rancher], and https://k3d.io/[K3d] clusters.
 
-This tutorial has been prepared with version v0.2.0 of Commodore. Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
+This tutorial has been prepared with the following versions of Syn components in mind:
+
+* Commodore: 0.6.0
+* Lieutenant API: 0.5.0
+* Lieutenant Operator: 0.5.2
+
+Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
+
+== Introduction
 
 In this tutorial, we are going to do the following:
 
-. First, we are going to launch two lightweight Kubernetes clusters, one Minikube and one Rancher K3s, and then we're going to federate them under the same tenant.
+. First, we are going to launch two lightweight Kubernetes clusters in our laptop, one https://minikube.sigs.k8s.io/docs/[Minikube] and one https://k3d.io/[K3d], and then we're going to federate them under the same tenant.
 . Then, we are going to create a very simple component, one that will deploy a workload in both clusters at the same time.
 . Finally, we are going to wrap up, not without first cleaning up all the different pieces of this experiment.
 
@@ -29,7 +37,7 @@ As for the required knowledge bits and pieces:
 
 This tutorial *was built on a Linux system*, and tested in both Linux and macOS; it should, however, be easily ported to other https://en.wikipedia.org/wiki/Unix-like[Unices], since all tools referenced here are cross-platform.
 
-To follow this tutorial you will need quite an array of software in your system:
+To follow this tutorial you will need quite an array of software in your system (the version numbers are the minimum required):
 
 * https://ngrok.com/[ngrok] version 2.3
 * https://www.docker.com/[Docker] version 19
@@ -39,14 +47,12 @@ To follow this tutorial you will need quite an array of software in your system:
 * A https://github.com/[GitHub] account with your https://github.com/settings/keys[SSH key configured].
 * SSH-agent running with your SSH key added.
 * The following commands must be installed and available in your path: https://curl.haxx.se/[curl], https://stedolan.github.io/jq/[jq], `ssh-keyscan`, and `base64`.
-** Although not required by this tutorial, you could also install https://github.com/mikefarah/yq[yq] and https://k9scli.io/[k9s], both very useful when working with Commodore Components.
-* We will be editing files with https://code.visualstudio.com/[Visual Studio Code] together with the following extensions:
-** https://marketplace.visualstudio.com/items?itemName=liamdawson.jsonnet-language[liamdawson.jsonnet-language]
-** https://marketplace.visualstudio.com/items?itemName=ahebrank.yaml2json[YAML to JSON extension]
+** Although not required by this tutorial, you could also install https://github.com/mikefarah/yq[yq] and https://k9scli.io/[k9s], both very useful when working with Kubernetes clusters.
+* We will be editing files with https://code.visualstudio.com/[Visual Studio Code] with the https://marketplace.visualstudio.com/items?itemName=liamdawson.jsonnet-language[liamdawson.jsonnet-language] extension.
 
 This tutorial project contains a `0_requirements.sh` script which outputs all of your currently installed versions of the aforementioned software packages.
 
-The specified version numbers are the minimum required. Also, please make sure that *both your GitLab and GitHub accounts must have SSH keys configured.*
+TIP: Please make sure that both your GitLab and GitHub accounts have SSH keys configured.
 
 == Preparations
 
@@ -54,7 +60,6 @@ Follow these three steps *before* starting the tutorial:
 
 . Clone the repository of the tutorial: `git clone git@github.com:projectsyn/commodore-component-tutorial.git` and `cd commodore-component-tutorial`.
 . Check all required tools by running the `./0_requirements.sh` script.
-. In GitHub, fork the https://github.com/projectsyn/getting-started-commodore-defaults[getting-started-commodore-defaults] project to your own personal account.
 . And in GitLab, create a https://gitlab.com/profile/personal_access_tokens[Personal Access Token] with API access.
 
 CAUTION: Remember to save your token somewhere, since it will only be visible once!
@@ -64,7 +69,7 @@ image::gitlab_token.png[]
 
 === Install Lieutenant Operator and API on Minikube
 
-The https://syn.tools/lieutenant-operator/[Lieutenant Operator] and its https://syn.tools/lieutenant-api/home.html[API] are the major elements of a Project Syn installation. They provide a complete catalog of information about all of your clusters, and allow developers to operate on those clusters through a unique API.
+The https://syn.tools/lieutenant-operator/[Lieutenant Operator] and its https://syn.tools/lieutenant-api/[API] are the major elements of a Project Syn installation. They provide a complete catalog of information about all of your clusters, and allow developers to operate on those clusters through a unique API.
 
 In this tutorial we are going to install Lieutenant in the same Minikube cluster that we will use later on; this is usually not the case, and Lieutenant and its API are usually installed separately. Doing so will, however, simplify our setup greatly.
 
@@ -72,13 +77,14 @@ First you need to set a few environment variables:
 
 [source,bash]
 ----
-$ export GITLAB_TOKEN="TOKEN_CREATED_IN_PREVIOUS_STEP"
-$ export GITLAB_ENDPOINT=gitlab.com
+$ export GITLAB_TOKEN="TOKEN_CREATED_PREVIOUSLY"
+$ export GITLAB_ENDPOINT=gitlab.com # or your own GitLab instance, if any!
 $ export GITLAB_USERNAME=your_gitlab_username
+$ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
 $ export GITHUB_USERNAME=your_github_username
 ----
 
-To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not go through them here. The script is quite self-explanatory, though:
+To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not explain it here. The script is quite self-explanatory, though:
 
 [source,bash]
 ----
@@ -98,14 +104,9 @@ image::gitlab_01.png[]
 
 === Bootstrapping Commodore on Minikube
 
-The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script. This script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` which should contain the path to your personal SSH public key. For example:
+The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script. This script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` which should contain the path to your personal SSH public key.
 
-[source,bash]
-----
-$ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
-----
-
-Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
+WARNING: Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
 
 === Install Steward on Minikube
 
@@ -137,19 +138,19 @@ And now we are ready: we have two working Kubernetes clusters, one Minikube and 
 
 [source,bash]
 ----
-$ kubectl --context minikube get clusters -n lieutenant
+$ kubectl --context minikube -n lieutenant get clusters
 NAME                  DISPLAY NAME       TENANT                AGE
 c-damp-dew-2385       K3s cluster        t-muddy-sunset-5530   78s
 c-small-cherry-9211   Minikube cluster   t-muddy-sunset-5530   48m
 
-$ kubectl --context minikube get tenants -n lieutenant
+$ kubectl --context minikube -n lieutenant get tenants
 NAME                  DISPLAY NAME      AGE
 t-muddy-sunset-5530   Tutorial Tenant   49m
 ----
 
-Of course, in your case the NAME column will show different, random values. But we can see both clusters and the tenant object, all happily residing inside the realm of our Project Syn installation.
+Of course, in your case the `NAME` column will show different, random values. But we can see both clusters and the tenant object, all happily residing inside the realm of our Project Syn installation.
 
-For more information, check out the https://syn.tools/lieutenant-operator/explanation/design.html[diagram] in the Project Syn website.
+For more information, check out the https://syn.tools/lieutenant-operator/explanations/design.html[diagram] in the Project Syn website.
 
 ==== Inspecting the Lieutenant API traffic
 
@@ -160,9 +161,7 @@ image::ngrok_inspect.png[]
 
 === Synthesize Kind, Microk8s, or other Kubernetes clusters
 
-This is an optional step! If you feel adventurous enough, and still have enough available RAM in your system, install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
-
-You can also synthesize a generic, pre-existing cluster using the `./4_synthesize_on_k8s.sh` script. This requires a file named `demo.kubeconfig` to be present, with the required accesses for `kubectl` (or you can edit the script and reference your context instead.)
+This is an optional step! If you feel adventurous enough, and still have enough available RAM in your system, you can install https://kind.sigs.k8s.io/[kind] or https://microk8s.io/[Microk8s] and run the `./4_synthesize_on_kind.sh` or `./4_synthesize_on_microk8s.sh` scripts, to spin up yet another cluster (or two!) to be added to your current tenant.
 
 == Creating a Commodore Component
 
@@ -373,7 +372,7 @@ Updating catalog repository...
 Catalog compiled! 🎉
 ----
 
-We have to do this for all clusters!
+We have to do this for all clusters! The `compile --push` process can take several minutes. Let's be patient!
 
 [source,bash]
 ----
@@ -384,7 +383,7 @@ $ commodore catalog compile --push c-late-cloud-248
 ...
 ----
 
-Since Argo CD, itself managed by Steward, is watching these repositories, it will pick up the new state and seamlessly deploy it across our two clusters in a few minutes.
+What is happening behind the scenes? Argo CD, itself managed by Steward, is watching these repositories; it will automatically pick up the new state, and seamlessly deploy it across our two clusters in a few minutes.
 
 With https://k9scli.io/[K9s] we can watch our clusters as they pick up the changes and apply them in all transparency. The namespace `syn-fortune` will contain the required deployment, pods, and service.
 
@@ -445,12 +444,11 @@ $ curl $(minikube service fortune-service --namespace syn-fortune --url)
 
 === Cleanup
 
-We are done! You can now remove the clusters in your computer, and also remove the projects you've created in GitHub and GitLab:
+We are done! You can now remove the clusters in your computer, and also remove the projects you've created in GitLab.
 
-* Run the `./5_delete.sh` script to deregister and stop all local clusters.
-* Remove your clone of `getting-started-commodore-defaults` on GitHub.
+Just run the `./5_delete.sh` script to deregister and stop all local clusters. You can also get rid of the Commodore component project you've created on GitHub if you don't need it anymore.
 
-The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s` have been automatically deleted by the Lieutenant Operator.
+The GitLab projects `tutorial-tenant`, `tutorial-cluster-minikube`, and `tutorial-cluster-k3s` will be automatically deleted by the Lieutenant Operator.
 
 [source,bash]
 ----
@@ -477,10 +475,10 @@ INFO[0002] Successfully deleted cluster projectsyn!
 
 == Conclusion
 
-I hope this tutorial has given you a good idea of what Commodore Components are, and how they can help you in your DevOps workflow.
+I hope this tutorial has given you a good idea of what Commodore Components are, how they work, and how they can help you in your DevOps workflow.
 
 Commodore Components can be used to deploy monitoring tools, to change the state of lots of clusters at once, to perform backup operations, to modify network policies, and many other tasks that otherwise would have to be performed manually.
 
-Creating Commodore Components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures. As a next step, we recommend that you read the https://openshift.docs.vshn.ch/oc4/references/projectsyn/developer.html[Commodore Component Developer Guidelines].
+Creating Commodore Components at the moment is a long task, but the rewards are high in terms of the economies of scale DevOps reach when managing multi-cluster architectures. As a next step, we recommend that you read the https://kb.vshn.ch/oc4/references/projectsyn/developer.html[Commodore Component Developer Guidelines].
 
-If you create a new open source Commodore Component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out and who knows? Maybe even contribute back to your effort.
+If you create a new open source Commodore Component, add the https://github.com/topics/commodore-component[`commodore-component` tag] on your GitHub project and let us know about it! We will be thrilled to check it out, and who knows? We might even contribute back to your effort with issues or pull requests.
