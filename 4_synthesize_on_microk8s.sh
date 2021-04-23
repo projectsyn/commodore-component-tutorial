@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source lib/functions.sh
 
-check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
-check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
-check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
-check_variable "TENANT_ID" $TENANT_ID
-check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
-check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
-check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
+check_variable "GITLAB_TOKEN" "$GITLAB_TOKEN"
+check_variable "GITLAB_ENDPOINT" "$GITLAB_ENDPOINT"
+check_variable "GITLAB_USERNAME" "$GITLAB_USERNAME"
+check_variable "TENANT_ID" "$TENANT_ID"
+check_variable "LIEUTENANT_URL" "$LIEUTENANT_URL"
+check_variable "LIEUTENANT_TOKEN" "$LIEUTENANT_TOKEN"
+check_variable "COMMODORE_SSH_PRIVATE_KEY" "$COMMODORE_SSH_PRIVATE_KEY"
 
 # Launch microk8s
 sudo microk8s start
@@ -19,7 +20,7 @@ LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Register this cluster via the API"
 CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Microk8s cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-microk8s.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
-check_variable "CLUSTER_ID" $CLUSTER_ID
+check_variable "CLUSTER_ID" "$CLUSTER_ID"
 
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"

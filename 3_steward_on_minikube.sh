@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source lib/functions.sh
 source lib/minikube.sh
 
@@ -7,16 +8,16 @@ check_minikube
 
 echo "===> Find Cluster ID"
 CLUSTER_ID=$(kubectl --context minikube -n lieutenant get cluster | grep Minikube | awk 'NR==1{print $1}')
-check_variable "CLUSTER_ID" $CLUSTER_ID
+check_variable "CLUSTER_ID" "$CLUSTER_ID"
 
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
-check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
+check_variable "LIEUTENANT_URL" "$LIEUTENANT_URL"
 
 echo "===> Find Lieutenant API token"
-LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret $(kubectl --context minikube -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
-check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
-LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
+LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret "$(kubectl --context minikube -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
+check_variable "LIEUTENANT_TOKEN" "$LIEUTENANT_TOKEN"
+LIEUTENANT_AUTH="Authorization: Bearer $LIEUTENANT_TOKEN"
 
 echo "===> Check the validity of the bootstrap token"
 wait_for_token "$CLUSTER_ID"

@@ -3,13 +3,16 @@
 COMMODORE_VERSION="v0.6.0"
 
 commodore() {
+  LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
+  LIEUTENANT_TOKEN=$(kubectl --context minikube --namespace lieutenant get secret "$(kubectl --context minikube --namespace lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
+
   docker run \
     --interactive=true \
     --tty \
     --rm \
     --user="$(id -u)" \
-    --env COMMODORE_API_URL=$LIEUTENANT_URL \
-    --env COMMODORE_API_TOKEN=$LIEUTENANT_TOKEN \
+    --env COMMODORE_API_URL="$LIEUTENANT_URL" \
+    --env COMMODORE_API_TOKEN="$LIEUTENANT_TOKEN" \
     --env SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
     --volume "${SSH_AUTH_SOCK}:/tmp/ssh_agent.sock" \
     --volume "${HOME}/.ssh/config:/app/.ssh/config:ro" \

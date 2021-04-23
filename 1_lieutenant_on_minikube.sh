@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source lib/functions.sh
 source lib/minikube.sh
 
-check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
-check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
-check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
+check_variable "GITLAB_TOKEN" "$GITLAB_TOKEN"
+check_variable "GITLAB_ENDPOINT" "$GITLAB_ENDPOINT"
+check_variable "GITLAB_USERNAME" "$GITLAB_USERNAME"
 
 # Minikube must be running
 minikube start --disk-size 60g --cpus 4
@@ -53,14 +54,14 @@ wait_for_lieutenant "$LIEUTENANT_URL/healthz"
 echo "===> Prepare Lieutenant Operator access to GitLab"
 kubectl -n lieutenant create secret generic gitlab-com \
   --from-literal=endpoint="https://${GITLAB_ENDPOINT}" \
-  --from-literal=hostKeys="$(ssh-keyscan ${GITLAB_ENDPOINT})" \
-  --from-literal=token=${GITLAB_TOKEN}
+  --from-literal=hostKeys="$(ssh-keyscan $GITLAB_ENDPOINT)" \
+  --from-literal=token="$GITLAB_TOKEN"
 
 echo "===> Prepare Lieutenant API Authentication and Authorization"
 kubectl -n lieutenant apply -f lib/auth.yaml
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
-LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
+LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret "$(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Create a Lieutenant Tenant via the API"
@@ -68,7 +69,7 @@ TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X
 echo "Tenant ID: $TENANT_ID"
 
 echo "===> Patch the Tenant object to add a cluster template"
-kubectl -n lieutenant patch tenant $TENANT_ID --type="merge" -p \
+kubectl -n lieutenant patch tenant "$TENANT_ID" --type="merge" -p \
 "{\"spec\":{\"clusterTemplate\": {
     \"gitRepoTemplate\": {
       \"apiSecretRef\":{\"name\":\"gitlab-com\"},
