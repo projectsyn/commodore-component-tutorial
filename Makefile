@@ -1,5 +1,3 @@
-SHELL := /bin/bash # for 'source'
-
 out_dir := ./build
 docker_cmd  ?= docker
 docker_opts ?= --rm --tty --user "$$(id -u)"
