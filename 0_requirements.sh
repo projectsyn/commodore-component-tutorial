@@ -8,7 +8,7 @@ trim () {
 }
 
 NGROK_VERSION=$(ngrok version)
-echo $NGROK_VERSION
+echo "$NGROK_VERSION"
 
 DOCKER_VERSION=$(docker version | grep Version -m 1)
 DOCKER_VERSION=$(trim "$DOCKER_VERSION")
@@ -18,10 +18,10 @@ PODMAN_VERSION=$(podman version | grep Version -m 1)
 echo "Podman $PODMAN_VERSION"
 
 MINIKUBE_VERSION=$(minikube version | grep version)
-echo $MINIKUBE_VERSION
+echo "$MINIKUBE_VERSION"
 
 K3D_VERSION=$(k3d version | grep version -m 1)
-echo $K3D_VERSION
+echo "$K3D_VERSION"
 
 VSCODE_PATH=$(which code)
 echo "Visual Studio Code: $VSCODE_PATH"
