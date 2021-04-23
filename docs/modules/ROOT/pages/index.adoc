@@ -198,8 +198,6 @@ $ mkdir -p catalog inventory dependencies compiled
 
 The first step to create a Commodore Component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
 
-Now we are ready to compile our catalog. Every time you call the `commodore` tool you will have to enter the password of your SSH key.
-
 [source,bash]
 ----
 $ kubectl --context minikube -n lieutenant get cluster
