@@ -84,16 +84,9 @@ $ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
 $ export GITHUB_USERNAME=your_github_username
 ----
 
-To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not explain it here. The script is quite self-explanatory, though:
+To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not explain it here.
 
-[source,bash]
-----
-# ...
-include::{examplesdir}1_lieutenant_on_minikube.sh[tag=demo]
-# ...
-----
-
-This script will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
+The script is quite self-explanatory. It will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
 
 It will also expose the Lieutenant API using the https://ngrok.com/[ngrok] reverse proxy tool. You do not need a commercial (paying) ngrok account to use it; just https://ngrok.com/download[download] the version corresponding to your system and install it somewhere in your `PATH`.
 
