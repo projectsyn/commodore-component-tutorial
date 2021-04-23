@@ -183,7 +183,6 @@ In order to create a new component, we need to clone the official Commodore proj
 ----
 $ git clone git@github.com:projectsyn/commodore.git
 $ cd commodore
-$ mkdir -p catalog inventory dependencies compiled
 ----
 
 === Compiling the Commodore Catalog
@@ -322,7 +321,7 @@ Edit `/common.yml` and add this text:
 parameters:
   components:
     fortune:
-      url: https://github.com/akosma/component-fortune.git
+      url: https://github.com/$GITHUB_USERNAME/YOUR_COMPONENT_NAME.git
       version: master
 applications:
   - fortune
@@ -332,7 +331,7 @@ And once again, commit and push your changes to the tenant GitLab repository:
 
 [source,bash]
 ----
-$ git commit -a -m "Added component"
+$ git commit -a -m "Added fortune component"
 $ git push
 $ cd ../../../
 ----
@@ -375,6 +374,8 @@ $ commodore catalog compile --push c-aged-cloud-4988
 $ commodore catalog compile --push c-late-cloud-248
 ...
 ----
+
+TIP: If you are lazy enough, try using the `commodore_push_all` command!
 
 What is happening behind the scenes? Argo CD, itself managed by Steward, is watching these repositories; it will automatically pick up the new state, and seamlessly deploy it across our two clusters in a few minutes.
 
@@ -423,7 +424,8 @@ For k3d:
 ----
 $ kubectl --context k3d-projectsyn -n syn-fortune port-forward svc/fortune-service 8081:3000
 
-$ curl http://localhost:8081 # in a different terminal
+# In a different terminal:
+$ curl http://localhost:8081 --header "Content-Type: text/plain"
 ----
 
 TIP: In K9s you can add port forwarding to a pod simply by selecting the pod and hitting the kbd:[Shift + F] key combination.
@@ -432,7 +434,7 @@ For Minikube:
 
 [source,bash]
 ----
-$ curl $(minikube service fortune-service --namespace syn-fortune --url)
+$ curl $(minikube service fortune-service --namespace syn-fortune --url) --header "Content-Type: text/plain"
 ----
 
 === Cleanup
