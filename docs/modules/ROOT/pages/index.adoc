@@ -170,7 +170,7 @@ Upon completion, you will have the `commodore`, `commodore_compile_all`, and `co
 
 === Checking out the Commodore Project
 
-In order to create a new component, we need to clone the official Commodore project from GitHub first. Inside of that clone of the Commodore source code we will create a few folders:
+In order to create a new component, we need to prepare a working directory for Commodore.
 
 [source,bash]
 ----
