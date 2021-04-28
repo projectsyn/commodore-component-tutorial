@@ -178,31 +178,17 @@ $ mkdir -p commodore
 $ cd commodore
 ----
 
-=== Compiling the Commodore Catalog
+==== Preparing the working directory
 
-The first step to create a Commodore Component is what is usually referred to as "compiling the catalog." This catalog provides a unique reference point of information about all the configuration and workloads affecting a single cluster.
+The easiest way to prepare a working directory for Commodore is to compile a cluster catalog. This operation will create all the directories which Commodore expects to be present when creating a new component. The following command will compile the catalog for one of the clusters which we've created previously.
 
 [source,bash]
 ----
-$ kubectl --context minikube -n lieutenant get cluster
-NAME                    DISPLAY NAME       TENANT                  AGE
-c-aged-cloud-4988       Kind cluster       t-weathered-fire-7929   3m58s
-c-late-cloud-248        K3s cluster        t-weathered-fire-7929   8m24s
-c-solitary-voice-5640   Minikube cluster   t-weathered-fire-7929   10m
-
-$ commodore catalog compile c-aged-cloud-4988
-...
-
-$ commodore catalog compile c-late-cloud-248
-...
-
-$ commodore catalog compile c-solitary-voice-5640
-...
+$ CLUSTER_ID=$(kubectl --context minikube -n lieutenant get cluster --no-headers -o custom-columns="NAME:.metadata.name" | head -n1)
+$ commodore catalog compile ${CLUSTER_ID}
 ----
 
-We must repeat this operation for each cluster, and of course, you should use the cluster IDs you got from the last `kubectl` command above.
-
-TIP: You can use the `commodore_compile_all` command instead!
+We don't have to repeat this operation for each cluster. But if you wanted, you can use the `commodore_compile_all` command instead. This command was created when you `source commodore_command.sh` previously.
 
 === Creating a New Commodore Component
 
