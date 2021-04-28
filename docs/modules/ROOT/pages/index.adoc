@@ -212,7 +212,7 @@ Let us create the component first:
 
 [source,bash]
 ----
-$ commodore component new fortune
+$ commodore component new fortune --owner ${GITHUB_USERNAME}
 Adding component fortune...
 Component fortune successfully added 🎉
 ----
