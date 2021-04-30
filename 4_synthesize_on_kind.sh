@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source lib/functions.sh
 
-check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
-check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
-check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
-check_variable "TENANT_ID" $TENANT_ID
-check_variable "LIEUTENANT_URL" $LIEUTENANT_URL
-check_variable "LIEUTENANT_TOKEN" $LIEUTENANT_TOKEN
-check_variable "COMMODORE_SSH_PRIVATE_KEY" $COMMODORE_SSH_PRIVATE_KEY
+check_variable "GITLAB_TOKEN" "$GITLAB_TOKEN"
+check_variable "GITLAB_ENDPOINT" "$GITLAB_ENDPOINT"
+check_variable "GITLAB_USERNAME" "$GITLAB_USERNAME"
+check_variable "COMMODORE_SSH_PRIVATE_KEY" "$COMMODORE_SSH_PRIVATE_KEY"
+
+LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
+check_variable "LIEUTENANT_URL" "$LIEUTENANT_URL"
+
+TENANT_ID=$(kubectl --context minikube --namespace lieutenant get tenant | grep t- | awk 'NR==1{print $1}')
+check_variable "TENANT_ID" "$TENANT_ID"
+
+LIEUTENANT_TOKEN=$(kubectl --context minikube --namespace lieutenant get secret "$(kubectl --context minikube --namespace lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
+check_variable "LIEUTENANT_TOKEN" "$LIEUTENANT_TOKEN"
 
 # Launch kind
 kind create cluster --name projectsyn
@@ -17,15 +24,14 @@ LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Register this cluster via the API"
 CLUSTER_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{ \"tenant\": \"${TENANT_ID}\", \"displayName\": \"Kind cluster\", \"facts\": { \"cloud\": \"local\", \"distribution\": \"k3s\", \"region\": \"local\" }, \"gitRepo\": { \"url\": \"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-cluster-kind.git\" } }" "${LIEUTENANT_URL}/clusters" | jq -r ".id")
-check_variable "CLUSTER_ID" $CLUSTER_ID
+check_variable "CLUSTER_ID" "$CLUSTER_ID"
 
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"
 kubectl --context minikube -n lieutenant run commodore-shell \
-  --image=docker.io/projectsyn/commodore:v0.3.0 \
+  --image=docker.io/projectsyn/commodore:v0.6.0 \
   --env=COMMODORE_API_URL="$LIEUTENANT_URL" \
   --env=COMMODORE_API_TOKEN="$LIEUTENANT_TOKEN" \
-  --env=COMMODORE_GLOBAL_GIT_BASE="https://github.com/$GITHUB_USERNAME" \
   --env=SSH_PRIVATE_KEY="$(cat ${COMMODORE_SSH_PRIVATE_KEY})" \
   --env=CLUSTER_ID="$CLUSTER_ID" \
   --env=GITLAB_ENDPOINT="$GITLAB_ENDPOINT" \

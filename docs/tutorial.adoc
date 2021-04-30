@@ -1,6 +1,6 @@
 :author: VSHN AG
 :revdate: {docdate}
-:revnumber: 1.0
+:revnumber: 1.1
 :email:  projectsyn@vshn.ch
 :copyright: CC-BY-SA 3.0
 :doctitle: Tutorial: Writing your First Commodore Component
@@ -9,8 +9,7 @@
 :description: A guide to create your first Commodore Component
 :keywords: VSHN, DevOps, Project Syn, Kubernetes
 :lang: en
-:imagesdir: docs/modules/ROOT/assets/images
+:imagesdir: modules/ROOT/assets/images
 :examplesdir: /documents/docs/modules/ROOT/examples/
 
-include::docs/modules/ROOT/pages/index.adoc[]
-include::docs/modules/ROOT/pages/testing.adoc[]
+include::modules/ROOT/pages/index.adoc[]

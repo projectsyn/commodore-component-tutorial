@@ -15,3 +15,20 @@ The `0_requirements.sh` script shows the current versions of all required softwa
 == Build PDF
 
 Use the `make pdf` command to create a PDF file out of the source Asciidoc file in the `build` folder. This operation requires Docker.
+
+== Troubleshooting
+
+Some users of Btrfs-on-LUKS have experimented issues with the tutorial. You might want to perform the following changes in that case.
+
+. In `1_lieutenant_on_minikube.sh`, line 12, use the following command to start Minikube: `minikube start --disk-size 60g --cpus 4 --feature-gates="LocalStorageCapacityIsolation=false"`
+. In `4_synthesize_on_k3s.sh`, replace line 22 `k3d cluster create projectsyn` with the following:
+
+[source,bash]
+--
+if [ -d /dev/mapper ]; then
+k3d_extra_args="-v /dev/mapper:/dev/mapper"
+else
+k3d_extra_args=""
+fi
+k3d cluster create projectsyn ${k3d_extra_args}
+--

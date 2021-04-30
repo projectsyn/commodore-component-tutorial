@@ -6,7 +6,7 @@ local params = inv.parameters.fortune;
 local namespace = 'syn-fortune';
 local appName = 'fortune-app';
 local portName = 'fortune-port';
-local containerName = 'vshn/fortune-cookie-service:1.0';
+local containerName = 'vshn/fortune-cookie-service:latest';
 local labelSelector = {
   app: appName,
 };

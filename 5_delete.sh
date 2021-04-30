@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source lib/functions.sh
 source lib/minikube.sh
 
 echo "===> Find Tenant ID"
 TENANT_ID=$(kubectl --context minikube -n lieutenant get tenant | grep t- | awk 'NR==1{print $1}')
-check_variable "TENANT_ID" $TENANT_ID
+check_variable "TENANT_ID" "$TENANT_ID"
 
 echo "===> Removing all clusters"
 CLUSTERS=($(kubectl --context minikube -n lieutenant get cluster -o jsonpath="{$.items[*].metadata.name}"))
@@ -21,5 +22,7 @@ sleep 20s
 
 minikube delete
 k3d cluster delete projectsyn
-kind delete cluster --name projectsyn
+# kind delete cluster --name projectsyn
+# sudo microk8s reset
+# sudo microk8s stop
 killall ngrok

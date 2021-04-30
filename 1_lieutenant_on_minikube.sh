@@ -1,34 +1,40 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
 source lib/functions.sh
 source lib/minikube.sh
 
-check_variable "GITLAB_TOKEN" $GITLAB_TOKEN
-check_variable "GITLAB_ENDPOINT" $GITLAB_ENDPOINT
-check_variable "GITLAB_USERNAME" $GITLAB_USERNAME
+check_variable "GITLAB_TOKEN" "$GITLAB_TOKEN"
+check_variable "GITLAB_ENDPOINT" "$GITLAB_ENDPOINT"
+check_variable "GITLAB_USERNAME" "$GITLAB_USERNAME"
 
 # Minikube must be running
-minikube start --memory 4096 --disk-size 60g --cpus 4
+minikube start --disk-size 60g --cpus 4
 check_minikube
 
 echo "===> Creating namespace"
 kubectl create namespace lieutenant
 
 echo "===> CRDs (global scope)"
-kubectl apply -k github.com/projectsyn/lieutenant-operator/deploy/crds
+kubectl apply -k github.com/projectsyn/lieutenant-operator/deploy/crds?ref=v0.5.2
 
 echo "===> Operator deployment"
-kubectl -n lieutenant apply -k github.com/projectsyn/lieutenant-operator/deploy
+kubectl -n lieutenant apply -k github.com/projectsyn/lieutenant-operator/deploy?ref=v0.5.2
 
 echo "===> Operator configuration"
 kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-operator \
-    SKIP_VAULT_SETUP=true \
     DEFAULT_DELETION_POLICY=Delete \
-    LIEUTENANT_DELETE_PROTECTION=false
+    DEFAULT_GLOBAL_GIT_REPO_URL=https://github.com/projectsyn/getting-started-commodore-defaults \
+    LIEUTENANT_DELETE_PROTECTION=false \
+    SKIP_VAULT_SETUP=true
 
 # tag::demo[]
 echo "===> API deployment"
-kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.2.0"
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.5.0"
+
+echo "===> API configuration"
+kubectl -n lieutenant set env deployment/lieutenant-api -c lieutenant-api \
+  DEFAULT_API_SECRET_REF_NAME=gitlab-com
 
 echo "===> For Minikube we must delete the default service and re-create it"
 kubectl -n lieutenant delete svc lieutenant-api
@@ -46,21 +52,32 @@ echo "===> Lieutenant API: $LIEUTENANT_URL"
 wait_for_lieutenant "$LIEUTENANT_URL/healthz"
 
 echo "===> Prepare Lieutenant Operator access to GitLab"
-kubectl -n lieutenant create secret generic vshn-gitlab \
-  --from-literal=endpoint="https://gitlab.com" \
-  --from-literal=hostKeys="$(ssh-keyscan gitlab.com)" \
+kubectl -n lieutenant create secret generic gitlab-com \
+  --from-literal=endpoint="https://${GITLAB_ENDPOINT}" \
+  --from-literal=hostKeys="$(ssh-keyscan $GITLAB_ENDPOINT)" \
   --from-literal=token="$GITLAB_TOKEN"
 
 echo "===> Prepare Lieutenant API Authentication and Authorization"
 kubectl -n lieutenant apply -f lib/auth.yaml
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
-LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret $(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}') -o go-template='{{.data.token | base64decode}}')
+LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret "$(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Create a Lieutenant Tenant via the API"
-TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{\"displayName\":\"Tutorial Tenant\",\"gitRepo\":{\"url\":\"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-tenant.git\"}}" "${LIEUTENANT_URL}/tenants" | jq -r ".id")
+TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{\"displayName\":\"Tutorial Tenant\",\"gitRepo\":{\"url\":\"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-tenant.git\"},\"globalGitRepoRevision\":\"v0.5.0\"}" "${LIEUTENANT_URL}/tenants" | jq -r ".id")
 echo "Tenant ID: $TENANT_ID"
+
+echo "===> Patch the Tenant object to add a cluster template"
+kubectl -n lieutenant patch tenant "$TENANT_ID" --type="merge" -p \
+"{\"spec\":{\"clusterTemplate\": {
+    \"gitRepoTemplate\": {
+      \"apiSecretRef\":{\"name\":\"gitlab-com\"},
+      \"path\":\"${GITLAB_USERNAME}\",
+      \"repoName\":\"{{ .Name }}\"
+    },
+    \"tenantRef\":{}
+}}}"
 
 echo "===> Retrieve the registered Tenants via API and directly on the cluster"
 curl -H "$LIEUTENANT_AUTH" "${LIEUTENANT_URL}/tenants"
