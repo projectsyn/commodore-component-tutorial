@@ -33,7 +33,7 @@ This tutorial should give you a good idea of how all the different pieces of Pro
 As for the required knowledge bits and pieces:
 
 * You should understand https://syn.tools/syn/about/features.html[what Project Syn is], and its https://syn.tools/syn/about/architecture.html[architecture].
-* You should have already followed the https://docs.syn.tools/syn/tutorials/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
+* You should have already followed the https://syn.tools/syn/tutorials/getting-started.html[Getting Started with Project Syn] tutorial, and be familiar with common Project Syn tasks.
 
 This tutorial *was built on a Linux system*, and tested in both Linux and macOS; it should, however, be easily ported to other https://en.wikipedia.org/wiki/Unix-like[Unices], since all tools referenced here are cross-platform.
 
@@ -84,7 +84,7 @@ $ export COMMODORE_SSH_PRIVATE_KEY=~/.ssh/id_rsa
 $ export GITHUB_USERNAME=your_github_username
 ----
 
-To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://docs.syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not explain it here.
+To install Lieutenant Operator and API on Minikube, we are going to execute the `./1_lieutenant_on_minikube.sh` script. This script mimicks the steps explained in the https://syn.tools/syn/tutorials/getting-started.html["Getting Started"] tutorial, so we will not explain it here.
 
 The script is quite self-explanatory. It will launch a new Minikube instance, will apply all the required `kubectl` commands, and wait for the cluster to be in the expected state before continuing.
 
@@ -97,13 +97,13 @@ image::gitlab_01.png[]
 
 === Bootstrapping Commodore on Minikube
 
-The second step in this tutorial is to bootstrap https://docs.syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script. This script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` which should contain the path to your personal SSH public key.
+The second step in this tutorial is to bootstrap https://syn.tools/commodore/[Commodore] in our Minikube cluster. For that we can just run the `./2_commodore_on_minikube.sh` script. This script requires an environment variable to run: `COMMODORE_SSH_PRIVATE_KEY` which should contain the path to your personal SSH public key.
 
 WARNING: Do not press the kbd:[Enter] key when prompted with the `If you don't see a command prompt, try pressing enter` message! Instead, type the passphrase of your SSH key.
 
 === Install Steward on Minikube
 
-Now that Lieutenant is installed we can install https://docs.syn.tools/steward/[Steward] on our cluster. This tool is in charge of bootstrapping https://argoproj.github.io/argo-cd/[Argo CD] which watches the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
+Now that Lieutenant is installed we can install https://syn.tools/steward/[Steward] on our cluster. This tool is in charge of bootstrapping https://argoproj.github.io/argo-cd/[Argo CD] which watches the GitLab and GitHub repositories, and triggers the GitOps operations required to keep each cluster up-to-date.
 
 We can easily install Steward on Minikube using the `./3_steward_on_minikube.sh` script.
 
@@ -157,7 +157,7 @@ Now we're getting to the actual subject of this tutorial! Let us dive into the r
 
 We are going to use now the `commodore` tool to generate and compile our new component. This tool is written in Python and requires quite a few dependencies; to make our lives easier, we are instead going to use the corresponding https://hub.docker.com/r/projectsyn/commodore[container image available in Docker Hub].
 
-This is why it is strongly recommended that you define an ad-hoc shortcut, as explained in the https://docs.syn.tools/commodore/running-commodore.html["Running Commodore"] page, which will make using `commodore` a much simpler task. That page contains information relevant for Linux and macOS users.
+This is why it is strongly recommended that you define an ad-hoc shortcut, as explained in the https://syn.tools/commodore/explanation/running-commodore.html["Running Commodore"] page, which will make using `commodore` a much simpler task. That page contains information relevant for Linux and macOS users.
 
 But for this tutorial, you can simply run the following command to get the job done:
 
