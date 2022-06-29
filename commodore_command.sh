@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-COMMODORE_VERSION="v0.6.0"
+COMMODORE_VERSION="v1.3.2"
 
 commodore() {
   LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
