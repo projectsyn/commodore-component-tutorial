@@ -12,9 +12,9 @@ There are many https://github.com/topics/commodore-component[Commodore Component
 
 This tutorial has been prepared with the following versions of Syn components in mind:
 
-* Commodore: 0.6.0
-* Lieutenant API: 0.5.0
-* Lieutenant Operator: 0.5.2
+* Commodore: 1.3.2
+* Lieutenant API: 0.9.1
+* Lieutenant Operator: 1.3.0
 
 Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
 

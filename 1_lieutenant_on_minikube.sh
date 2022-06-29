@@ -16,10 +16,10 @@ echo "===> Creating namespace"
 kubectl create namespace lieutenant
 
 echo "===> CRDs (global scope)"
-kubectl apply -k github.com/projectsyn/lieutenant-operator/deploy/crds?ref=v0.5.2
+kubectl apply -k "github.com/projectsyn/lieutenant-operator/config/crd?ref=v1.3.0"
 
 echo "===> Operator deployment"
-kubectl -n lieutenant apply -k github.com/projectsyn/lieutenant-operator/deploy?ref=v0.5.2
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-operator/config/samples/deployment?ref=v1.3.0"
 
 echo "===> Operator configuration"
 kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-operator \
@@ -30,7 +30,7 @@ kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-opera
 
 # tag::demo[]
 echo "===> API deployment"
-kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.5.0"
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.9.1"
 
 echo "===> API configuration"
 kubectl -n lieutenant set env deployment/lieutenant-api -c lieutenant-api \
@@ -65,7 +65,7 @@ LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret "$(kubectl -n lieutenant get
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Create a Lieutenant Tenant via the API"
-TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{\"displayName\":\"Tutorial Tenant\",\"gitRepo\":{\"url\":\"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-tenant.git\"},\"globalGitRepoRevision\":\"v0.5.0\"}" "${LIEUTENANT_URL}/tenants" | jq -r ".id")
+TENANT_ID=$(curl -s -H "$LIEUTENANT_AUTH" -H "Content-Type: application/json" -X POST --data "{\"displayName\":\"Tutorial Tenant\",\"gitRepo\":{\"url\":\"ssh://git@${GITLAB_ENDPOINT}/${GITLAB_USERNAME}/tutorial-tenant.git\"},\"globalGitRepoRevision\":\"v1\"}" "${LIEUTENANT_URL}/tenants" | jq -r ".id")
 echo "Tenant ID: $TENANT_ID"
 
 echo "===> Patch the Tenant object to add a cluster template"
