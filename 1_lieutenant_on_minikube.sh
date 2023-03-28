@@ -42,7 +42,7 @@ kubectl -n lieutenant expose deployment lieutenant-api --type=NodePort --port=80
 
 echo "===> Launch ngrok in the background tunneling towards the Lieutenant API"
 setsid ./ngrok.sh >/dev/null 2>&1 < /dev/null &
-sleep 2s
+sleep 2
 
 echo "===> Find external Lieutenant URL through the ngrok API"
 LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
