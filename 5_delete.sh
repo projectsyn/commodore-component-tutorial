@@ -18,7 +18,7 @@ echo "===> Removing tenant"
 kubectl --context minikube -n lieutenant delete tenant "$TENANT_ID"
 
 echo "===> Waiting 20 seconds for the removal of GitLab repositories"
-sleep 20s
+sleep 20
 
 minikube delete
 k3d cluster delete projectsyn

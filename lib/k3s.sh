@@ -6,7 +6,7 @@ wait_for_k3s () {
     while [ -z "$K3S_RUNNING" ]
     do
         echo "===> K3s not yet ready"
-        sleep 5s
+        sleep 5
         K3S_RUNNING=$(kubectl get nodes | grep k3d)
     done
     echo "===> K3s running"
@@ -19,7 +19,7 @@ wait_for_traefik () {
     while [ -z "$TRAEFIK" ]
     do
         echo "===> Traefik not yet ready"
-        sleep 5s
+        sleep 5
         TRAEFIK=$(kubectl --context k3d-projectsyn get pod -n kube-system | grep traefik | grep Running | grep 1/1)
     done
     echo "===> Traefik ready"

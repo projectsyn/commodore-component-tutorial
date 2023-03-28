@@ -17,7 +17,7 @@ wait_for_lieutenant() {
     while [ "$RESULT" != "$EXPECTED" ]
     do
         echo "===> Not yet OK"
-        sleep 5s
+        sleep 5
         RESULT=$($COMMAND)
     done
     echo "===> OK"
@@ -31,7 +31,7 @@ wait_for_token () {
     while [ "$RESULT" != "$EXPECTED" ]
     do
         echo "===> Not yet OK"
-        sleep 10s
+        sleep 10
         RESULT=$($COMMAND)
     done
     echo "===> Bootstrap token OK"
