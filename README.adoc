@@ -12,6 +12,12 @@ The instructions of the tutorial guide the user to the creation and deployment o
 
 The `0_requirements.sh` script shows the current versions of all required software.
 
+=== Podman instead of Docker
+
+If you do not have Docker installed or would prefer to use https://podman.io/[Podman], https://kind.sigs.k8s.io/[kind] is 100% compatible with Podman and has been successfully tested with this tutorial.
+
+At the time of the last update of this document, k3d 5.5 is not compatible with Podman, https://k3d.io/v5.5.1/usage/advanced/podman/[despite what the documentation says].
+
 == Build PDF
 
 Use the `make pdf` command to create a PDF file out of the source Asciidoc file in the `build` folder. This operation requires Docker.

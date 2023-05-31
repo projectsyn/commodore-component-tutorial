@@ -9,6 +9,7 @@ TENANT_ID=$(kubectl --context minikube -n lieutenant get tenant | grep t- | awk 
 check_variable "TENANT_ID" "$TENANT_ID"
 
 echo "===> Removing all clusters"
+# shellcheck disable=SC2207
 CLUSTERS=($(kubectl --context minikube -n lieutenant get cluster -o jsonpath="{$.items[*].metadata.name}"))
 for CLUSTER in "${CLUSTERS[@]}"; do
     kubectl --context minikube -n lieutenant delete cluster "$CLUSTER"
@@ -22,7 +23,5 @@ sleep 20
 
 minikube delete
 k3d cluster delete projectsyn
-# kind delete cluster --name projectsyn
-# sudo microk8s reset
-# sudo microk8s stop
+kind delete cluster --name projectsyn
 killall ngrok

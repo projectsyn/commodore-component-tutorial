@@ -34,3 +34,11 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: api-access-synkickstart
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: token-secret
+  annotations:
+    kubernetes.io/service-account.name: api-access-synkickstart

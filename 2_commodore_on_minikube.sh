@@ -10,6 +10,8 @@ check_variable "GITHUB_USERNAME" "$GITHUB_USERNAME"
 
 check_minikube
 
+COMMODORE_VERSION=v1.16.0
+
 echo "===> Find Lieutenant URL"
 LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
 check_variable "LIEUTENANT_URL" "$LIEUTENANT_URL"
@@ -19,15 +21,15 @@ CLUSTER_ID=$(kubectl --context minikube -n lieutenant get cluster | grep c- | aw
 check_variable "CLUSTER_ID" "$CLUSTER_ID"
 
 echo "===> Find Lieutenant Token"
-LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret "$(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
+LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret token-secret -o go-template='{{.data.token | base64decode}}')
 
 echo "===> Kickstart Commodore"
 echo "===> IMPORTANT: When prompted enter your SSH key password"
 kubectl -n lieutenant run commodore-shell \
-  --image=docker.io/projectsyn/commodore:v1.3.2 \
+  --image=docker.io/projectsyn/commodore:$COMMODORE_VERSION \
   --env=COMMODORE_API_URL="$LIEUTENANT_URL" \
   --env=COMMODORE_API_TOKEN="$LIEUTENANT_TOKEN" \
-  --env=SSH_PRIVATE_KEY="$(cat ${COMMODORE_SSH_PRIVATE_KEY})" \
+  --env=SSH_PRIVATE_KEY="$(cat "${COMMODORE_SSH_PRIVATE_KEY}")" \
   --env=CLUSTER_ID="$CLUSTER_ID" \
   --env=GITLAB_ENDPOINT="$GITLAB_ENDPOINT" \
   --tty --stdin --restart=Never --rm --wait \

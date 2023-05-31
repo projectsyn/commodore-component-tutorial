@@ -15,7 +15,7 @@ LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tun
 check_variable "LIEUTENANT_URL" "$LIEUTENANT_URL"
 
 echo "===> Find Lieutenant API token"
-LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret "$(kubectl --context minikube -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
+LIEUTENANT_TOKEN=$(kubectl --context minikube -n lieutenant get secret token-secret -o go-template='{{.data.token | base64decode}}')
 check_variable "LIEUTENANT_TOKEN" "$LIEUTENANT_TOKEN"
 LIEUTENANT_AUTH="Authorization: Bearer $LIEUTENANT_TOKEN"
 

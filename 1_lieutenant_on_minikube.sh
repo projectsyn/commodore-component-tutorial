@@ -8,6 +8,10 @@ check_variable "GITLAB_TOKEN" "$GITLAB_TOKEN"
 check_variable "GITLAB_ENDPOINT" "$GITLAB_ENDPOINT"
 check_variable "GITLAB_USERNAME" "$GITLAB_USERNAME"
 
+# Lieutenant Operator and API versions
+LIEUTENANT_OPERATOR_VERSION=v1.5.0
+LIEUTENANT_API_VERSION=v0.11.0
+
 # Minikube must be running
 minikube start --disk-size 60g --cpus 4
 check_minikube
@@ -16,21 +20,22 @@ echo "===> Creating namespace"
 kubectl create namespace lieutenant
 
 echo "===> CRDs (global scope)"
-kubectl apply -k "github.com/projectsyn/lieutenant-operator/config/crd?ref=v1.3.0"
+kubectl apply -k "github.com/projectsyn/lieutenant-operator/config/crd?ref=$LIEUTENANT_OPERATOR_VERSION"
 
 echo "===> Operator deployment"
-kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-operator/config/samples/deployment?ref=v1.3.0"
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-operator/config/samples/deployment?ref=$LIEUTENANT_OPERATOR_VERSION"
 
 echo "===> Operator configuration"
 kubectl -n lieutenant set env deployment/lieutenant-operator -c lieutenant-operator \
     DEFAULT_DELETION_POLICY=Delete \
     DEFAULT_GLOBAL_GIT_REPO_URL=https://github.com/projectsyn/getting-started-commodore-defaults \
     LIEUTENANT_DELETE_PROTECTION=false \
-    SKIP_VAULT_SETUP=true
+    SKIP_VAULT_SETUP=true \
+    LIEUTENANT_CREATE_SERVICEACCOUNT_TOKEN_SECRET=true
 
 # tag::demo[]
 echo "===> API deployment"
-kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=v0.9.1"
+kubectl -n lieutenant apply -k "github.com/projectsyn/lieutenant-api/deploy?ref=$LIEUTENANT_API_VERSION"
 
 echo "===> API configuration"
 kubectl -n lieutenant set env deployment/lieutenant-api -c lieutenant-api \
@@ -54,14 +59,14 @@ wait_for_lieutenant "$LIEUTENANT_URL/healthz"
 echo "===> Prepare Lieutenant Operator access to GitLab"
 kubectl -n lieutenant create secret generic gitlab-com \
   --from-literal=endpoint="https://${GITLAB_ENDPOINT}" \
-  --from-literal=hostKeys="$(ssh-keyscan $GITLAB_ENDPOINT)" \
+  --from-literal=hostKeys="$(ssh-keyscan "$GITLAB_ENDPOINT")" \
   --from-literal=token="$GITLAB_TOKEN"
 
 echo "===> Prepare Lieutenant API Authentication and Authorization"
 kubectl -n lieutenant apply -f lib/auth.yaml
 
 echo "===> Create Lieutenant Objects: Tenant and Cluster"
-LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret "$(kubectl -n lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
+LIEUTENANT_TOKEN=$(kubectl -n lieutenant get secret token-secret -o go-template='{{.data.token | base64decode}}')
 LIEUTENANT_AUTH="Authorization: Bearer ${LIEUTENANT_TOKEN}"
 
 echo "===> Create a Lieutenant Tenant via the API"
