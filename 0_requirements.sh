@@ -20,11 +20,11 @@ echo "Podman $PODMAN_VERSION"
 MINIKUBE_VERSION=$(minikube version | grep version)
 echo "$MINIKUBE_VERSION"
 
+KIND_VERSION=$(kind version)
+echo "$KIND_VERSION"
+
 K3D_VERSION=$(k3d version | grep version -m 1)
 echo "$K3D_VERSION"
-
-VSCODE_PATH=$(which code)
-echo "Visual Studio Code: $VSCODE_PATH"
 
 CURL_PATH=$(which curl)
 echo "curl: $CURL_PATH"
