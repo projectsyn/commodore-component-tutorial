@@ -12,6 +12,12 @@ check_variable "GITLAB_USERNAME" "$GITLAB_USERNAME"
 LIEUTENANT_OPERATOR_VERSION=v1.5.0
 LIEUTENANT_API_VERSION=v0.11.0
 
+# ngrok must not be running
+if pidof ngrok; then
+  echo "ERROR: ngrok is already running. Please stop it first."
+  exit 1
+fi
+
 # Minikube must be running
 minikube start --disk-size 60g --cpus 4
 check_minikube
