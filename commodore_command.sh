@@ -6,9 +6,10 @@ commodore() {
   LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
   LIEUTENANT_TOKEN=$(kubectl --context minikube --namespace lieutenant get secret "$(kubectl --context minikube --namespace lieutenant get sa api-access-synkickstart -o go-template='{{(index .secrets 0).name}}')" -o go-template='{{.data.token | base64decode}}')
 
-  docker run \
-    --interactive=true \
-    --tty \
+  interactive=${COMMODORE_INTERACTIVE:-"--interactive=true"}
+  tty=${COMMODORE_TTY:-"--tty"}
+
+  docker run $interactive $tty \
     --rm \
     --user="$(id -u)" \
     --env COMMODORE_API_URL="$LIEUTENANT_URL" \
