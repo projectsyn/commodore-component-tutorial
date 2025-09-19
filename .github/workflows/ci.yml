@@ -1,0 +1,29 @@
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  COMMODORE_INTERACTIVE: "--interactive=false"
+  COMMODORE_TTY: "--tty=false"
+
+jobs:
+
+  check-commands:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - run: ./0_requirements.sh || true
+
+      - run: |
+          export SSH_AUTH_SOCK=/tmp/ssh_agent.sock
+          touch $SSH_AUTH_SOCK
+          
+          set -x
+          set +e
+          source commodore_command.sh
+          commodore component new fortune
+          ls -R dependencies/fortune
+          commodore component compile dependencies/fortune
+          ls -R dependencies/fortune
