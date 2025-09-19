@@ -1,6 +1,7 @@
 {
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    "schedule:monthly"
   ],
   "rebaseWhen": "conflicted",
   "labels": ["renovate"],
