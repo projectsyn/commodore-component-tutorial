@@ -20,6 +20,8 @@ jobs:
           export SSH_AUTH_SOCK=/tmp/ssh_agent.sock
           touch $SSH_AUTH_SOCK
           
+          touch ${HOME}/.gitconfig
+          
           set -x
           set +e
           source commodore_command.sh
