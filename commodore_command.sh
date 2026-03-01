@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # renovate: datasource=docker depName=projectsyn/commodore
-COMMODORE_VERSION="v1.31.0"
+COMMODORE_VERSION="v1.32.0"
 
 commodore() {
   LIEUTENANT_URL=$(curl http://localhost:4040/api/tunnels --silent | jq -r '.["tunnels"][0]["public_url"]')
