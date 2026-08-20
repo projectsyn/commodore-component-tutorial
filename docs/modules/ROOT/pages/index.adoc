@@ -13,11 +13,11 @@ There are many https://github.com/topics/commodore-component[Commodore Component
 This tutorial has been prepared with the following versions of Syn components in mind:
 
 // renovate: datasource=docker depName=projectsyn/commodore
-* Commodore: 1.31.0
+* Commodore: 1.34.1
 // renovate: datasource=docker depName=projectsyn/lieutenant-api
-* Lieutenant API: 0.12.2
+* Lieutenant API: 0.13.0
 // renovate: datasource=docker depName=projectsyn/lieutenant-operator
-* Lieutenant Operator: 1.11.11
+* Lieutenant Operator: 1.13.1
 
 Project Syn is moving fast, and we will update this tutorial accordingly as new features and capabilities are made available by the development team.
 
